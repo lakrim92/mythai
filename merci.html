@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Commande confirmée — My Thai Street Food</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: #080808;
+      font-family: 'Inter', sans-serif;
+      padding: 24px;
+    }
+    .box {
+      background: #161616;
+      border: 1px solid rgba(245,166,35,.15);
+      border-radius: 16px;
+      padding: 52px 44px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      animation: pop .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes pop {
+      from { transform: scale(0); opacity:0; }
+      to   { transform: scale(1); opacity:1; }
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; color: #fff;
+      margin-bottom: 12px;
+    }
+    p { color: #888; line-height: 1.65; margin-bottom: 8px; font-size: .9rem; }
+    .highlight {
+      background: rgba(245,166,35,.1);
+      border: 1px solid rgba(245,166,35,.25);
+      border-radius: 8px;
+      padding: 14px 18px;
+      color: #F5A623;
+      font-weight: 600;
+      margin: 24px 0;
+      font-size: .9rem;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #C8390B, #E84A1A);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: .88rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-top: 8px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 6px 24px rgba(200,57,11,.35);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(200,57,11,.5); }
+    .brand {
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      color: rgba(255,255,255,.3);
+      font-size: .75rem;
+    }
+    @media (max-width: 480px) {
+      .box { padding: 36px 24px; }
+      h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="icon">🍜</div>
+    <h1>Commande confirmée !</h1>
+    <p>Merci pour votre commande. Vous allez recevoir un email de confirmation.</p>
+    <div class="highlight">⏱ Temps de préparation estimé : <strong>~30 minutes</strong></div>
+    <p id="modeText"></p>
+    <a href="/" class="btn">← Retour à l'accueil</a>
+    <div class="brand">
+      My Thai Street Food · 30 Av. Jean-Moulin, 78380 Bougival
+    </div>
+  </div>
+
+  <script>
+    const sessionId = new URLSearchParams(location.search).get('session_id');
+    if (sessionId) {
+      fetch(`/api/confirm?session_id=${encodeURIComponent(sessionId)}`).catch(() => {});
+    }
+  </script>
+</body>
+</html>

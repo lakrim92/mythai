@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>My Thai Street Food — Bougival</title>
+  <meta name="description" content="My Thai Street Food à Bougival — Cuisine thaïlandaise authentique. Commandez en ligne, à emporter ou livraison à Bougival, Rueil-Malmaison, Chatou, Le Pecq, Croissy-sur-Seine, Louveciennes, Marly-le-Roi, La Celle-Saint-Cloud, Port-Marly.">
+  <meta name="keywords" content="restaurant thaï Bougival, cuisine thaïlandaise Bougival, livraison thaï Bougival, pad thaï livraison, curry thaï Rueil-Malmaison, thaï Chatou, thaï Le Pecq, thaï Croissy-sur-Seine, thaï Louveciennes, thaï Marly-le-Roi, thaï La Celle-Saint-Cloud, thaï Port-Marly, commander thaï, my thai street food">
+  <meta property="og:title" content="My Thai Street Food | Bougival">
+  <meta property="og:description" content="Commandez en ligne — À emporter ou livraison sur Bougival et alentours. Pad Thaï, currys, yakitori, desserts exotiques.">
+  <meta property="og:type" content="restaurant">
+  <meta property="og:image" content="/images/og-image.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": "My Thai Street Food",
+    "image": "/images/og-image.jpg",
+    "logo": "/images/favicon-512.png",
+    "url": "https://mythai-bougival.fr",
+    "telephone": "+33175269120",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "30 avenue Jean-Moulin",
+      "addressLocality": "Bougival",
+      "postalCode": "78380",
+      "addressCountry": "FR"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 48.8687,
+      "longitude": 2.1425
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "11:00",
+        "closes": "15:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "18:00",
+        "closes": "23:00"
+      }
+    ],
+    "servesCuisine": "Thaïlandaise",
+    "priceRange": "€€",
+    "description": "Restaurant thaïlandais authentique à Bougival. Pad Thaï, currys, yakitori, desserts exotiques. Commande en ligne, livraison rapide à Bougival, Rueil-Malmaison, Chatou et alentours.",
+    "areaServed": [
+      "Bougival", "Rueil-Malmaison", "Chatou", "Le Pecq",
+      "Croissy-sur-Seine", "Louveciennes", "Marly-le-Roi",
+      "La Celle-Saint-Cloud", "Port-Marly"
+    ],
+    "hasMenu": "https://mythai-bougival.fr/#menu",
+    "paymentAccepted": "Credit Card",
+    "currenciesAccepted": "EUR"
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* ───────────────────────────────────────────
+       VARIABLES & RESET
+    ─────────────────────────────────────────── */
+    :root {
+      --red:      #C8390B;
+      --red-2:    #E84A1A;
+      --gold:     #F5A623;
+      --gold-2:   #FFD166;
+      --black:    #080808;
+      --dark:     #101010;
+      --card:     #161616;
+      --card-2:   #1d1d1d;
+      --border:   rgba(245,166,35,.13);
+      --border-2: rgba(245,166,35,.28);
+      --text:     #EDEDED;
+      --muted:    #777;
+      --white:    #FFFFFF;
+      --green:    #22C55E;
+      --safe-b:   env(safe-area-inset-bottom, 0px);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; font-size:16px; }
+    body {
+      background:var(--black); color:var(--text);
+      font-family:'Inter',sans-serif;
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      -webkit-tap-highlight-color:transparent;
+    }
+    a { text-decoration:none; color:inherit; }
+    button { font-family:'Inter',sans-serif; cursor:pointer; }
+
+    /* ───────────────────────────────────────────
+       UTILS
+    ─────────────────────────────────────────── */
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity .7s ease,transform .7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    .ph {
+      background:linear-gradient(135deg,#1c1008,#2a1500);
+      display:flex; align-items:center; justify-content:center;
+      flex-direction:column; gap:8px;
+      color:rgba(245,166,35,.25); font-size:.62rem;
+      letter-spacing:.1em; text-transform:uppercase;
+      border:1px dashed rgba(245,166,35,.1);
+    }
+    .ph i { font-size:1.6rem; }
+
+    /* ───────────────────────────────────────────
+       NAVIGATION
+    ─────────────────────────────────────────── */
+    #nav {
+      position:fixed; inset:0 0 auto; z-index:900;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:20px 40px;
+      transition:padding .4s,background .4s,border-color .4s;
+      border-bottom:1px solid transparent;
+    }
+    #nav.solid {
+      padding:13px 40px;
+      background:rgba(8,8,8,.95);
+      backdrop-filter:blur(20px);
+      border-color:var(--border);
+    }
+    .nav-brand { display:flex; flex-direction:column; line-height:1; gap:2px; }
+    .nav-brand .b1 { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:900; color:#fff; }
+    .nav-brand .b2 { font-size:.58rem; font-weight:600; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); }
+    .nav-links { display:flex; align-items:center; gap:32px; list-style:none; }
+    .nav-links a { font-size:.75rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.65); transition:color .25s; }
+    .nav-links a:hover { color:var(--gold); }
+
+    /* Cart button in nav */
+    .nav-cart {
+      display:flex; align-items:center; gap:8px;
+      background:rgba(245,166,35,.12);
+      border:1px solid rgba(245,166,35,.25);
+      color:var(--gold);
+      padding:9px 18px; border-radius:6px;
+      font-size:.75rem; font-weight:700;
+      letter-spacing:.08em; text-transform:uppercase;
+      transition:all .25s; position:relative;
+      white-space:nowrap;
+    }
+    .nav-cart:hover { background:rgba(245,166,35,.2); border-color:var(--gold-2); }
+    .cart-badge {
+      display:none;
+      position:absolute; top:-7px; right:-7px;
+      background:var(--red); color:#fff;
+      font-size:.62rem; font-weight:700;
+      width:20px; height:20px; border-radius:50%;
+      align-items:center; justify-content:center;
+      border:2px solid var(--black);
+    }
+    .cart-badge.show { display:flex; }
+
+    /* ───────────────────────────────────────────
+       HERO
+    ─────────────────────────────────────────── */
+    #hero {
+      position:relative; height:100vh; min-height:660px;
+      display:flex; align-items:center; justify-content:center; overflow:hidden;
+    }
+    .hero-bg {
+      position:absolute; inset:0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 60%,rgba(200,57,11,.22) 0%,transparent 55%),
+        radial-gradient(ellipse 60% 70% at 80% 30%,rgba(245,166,35,.12) 0%,transparent 55%),
+        radial-gradient(ellipse 100% 100% at 50% 50%,rgba(22,8,0,.55) 0%,rgba(8,8,8,.6) 100%),
+        url('images/hero_mythai.jpg') center/cover no-repeat;
+    }
+    .hero-bg::after {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(to bottom,rgba(8,8,8,.1) 0%,rgba(8,8,8,.05) 40%,rgba(8,8,8,.55) 75%,rgba(8,8,8,1) 100%);
+    }
+    .hero-grid { position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+    .hero-grid::before {
+      content:''; position:absolute; inset:-50%;
+      background-image:linear-gradient(rgba(245,166,35,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,.05) 1px,transparent 1px);
+      background-size:60px 60px;
+      transform:perspective(600px) rotateX(60deg) translateY(30%);
+      mask-image:radial-gradient(ellipse 80% 60% at 50% 100%,black 0%,transparent 70%);
+    }
+    #particles { position:absolute; inset:0; z-index:2; pointer-events:none; }
+    .pt { position:absolute; border-radius:50%; background:var(--gold); opacity:0; animation:ptFloat linear infinite; }
+    @keyframes ptFloat { 0%{transform:translateY(105vh) scale(0);opacity:0} 8%{opacity:.5} 92%{opacity:.2} 100%{transform:translateY(-10vh) scale(1.2);opacity:0} }
+
+    .hero-inner { position:relative; z-index:3; text-align:center; padding:0 24px; max-width:860px; }
+    .hero-status {
+      display:inline-flex; align-items:center; gap:10px;
+      background:rgba(245,166,35,.1); border:1px solid rgba(245,166,35,.3);
+      color:var(--gold); padding:8px 22px; border-radius:50px;
+      font-size:.7rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+      margin-bottom:28px; animation:fadeDown .8s ease both;
+    }
+    .status-dot { width:8px; height:8px; background:var(--green); border-radius:50%; box-shadow:0 0 0 2px rgba(34,197,94,.25); animation:dotPulse 1.8s ease-in-out infinite; }
+    .status-dot.closed { background:#EF4444; box-shadow:0 0 0 2px rgba(239,68,68,.25); animation:none; }
+    @keyframes dotPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5);opacity:.7} }
+
+    .hero-title { font-family:'Playfair Display',serif; font-size:clamp(3rem,9vw,7rem); line-height:.95; margin-bottom:8px; animation:fadeUp .9s ease .15s both; }
+    .hero-title .t1 { display:block; color:#fff; font-weight:900; }
+    .hero-title .t2 { display:block; font-style:italic; font-weight:700; color:transparent; -webkit-text-stroke:1px rgba(255,255,255,.35); }
+    .hero-title .t3 { display:block; font-weight:900; background:linear-gradient(100deg,var(--red-2),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero-tagline { font-size:clamp(.78rem,1.8vw,.95rem); font-weight:300; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:48px; animation:fadeUp .9s ease .3s both; }
+
+    .hero-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; animation:fadeUp .9s ease .45s both; }
+    .btn-fire {
+      display:inline-flex; align-items:center; gap:10px;
+      background:linear-gradient(135deg,var(--red),#D64A1A);
+      color:#fff; padding:15px 32px; border-radius:6px;
+      font-weight:700; font-size:.88rem; letter-spacing:.08em; text-transform:uppercase;
+      border:none; transition:transform .25s,box-shadow .25s;
+      box-shadow:0 8px 28px rgba(200,57,11,.45);
+    }
+    .btn-fire:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(200,57,11,.6); }
+    .btn-outline {
+      display:inline-flex; align-items:center; gap:10px;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18);
+      backdrop-filter:blur(12px);
+      color:#fff; padding:15px 32px; border-radius:6px;
+      font-weight:600; font-size:.88rem; letter-spacing:.08em; text-transform:uppercase;
+      transition:all .25s;
+    }
+    .btn-outline:hover { background:rgba(245,166,35,.12); border-color:rgba(245,166,35,.4); transform:translateY(-3px); }
+
+    .hero-scroll { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); z-index:3; display:flex; flex-direction:column; align-items:center; gap:10px; color:rgba(255,255,255,.3); font-size:.6rem; letter-spacing:.22em; text-transform:uppercase; animation:fadeIn 1s ease 1.4s both; }
+    .scroll-bar { width:1px; height:44px; background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent); animation:scrollAnim 1.6s ease-in-out infinite; }
+    @keyframes scrollAnim { 0%,100%{opacity:.4;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(.55)} }
+
+    /* ───────────────────────────────────────────
+       SECTION HEADERS
+    ─────────────────────────────────────────── */
+    .s-label { display:inline-block; font-size:.62rem; font-weight:700; letter-spacing:.32em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+    .s-title { font-family:'Playfair Display',serif; font-size:clamp(1.9rem,5vw,3.2rem); font-weight:700; color:#fff; line-height:1.1; }
+    .s-title em { font-style:normal; background:linear-gradient(100deg,var(--red-2),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .s-bar { width:48px; height:2px; background:linear-gradient(90deg,var(--red),var(--gold)); margin-top:16px; }
+    .s-bar.center { margin-left:auto; margin-right:auto; }
+
+    /* ───────────────────────────────────────────
+       SECTION PROMO
+    ─────────────────────────────────────────── */
+    .section-promo { padding:18px 0; background:linear-gradient(135deg,#C8390B,#a82d09); color:#fff; }
+    .promo-inner { max-width:1060px; margin:0 auto; padding:0 40px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; }
+    .promo-inner h2 { font-family:'Playfair Display',serif; font-size:1.35rem; color:#fff; margin:0; letter-spacing:-.01em; }
+    .promo-inner p { color:rgba(255,255,255,.8); font-size:.88rem; margin:3px 0 0; }
+    .promo-tag { display:flex; align-items:center; gap:10px; background:rgba(0,0,0,.2); border-radius:50px; padding:10px 20px; }
+    .promo-tag span { color:#fff; font-weight:700; font-size:.92rem; }
+    @media(max-width:900px) {
+      .promo-inner { padding:0 20px; flex-direction:column; text-align:center; }
+      .promo-tag { justify-content:center; }
+    }
+
+    /* ───────────────────────────────────────────
+       MENU SECTION
+    ─────────────────────────────────────────── */
+    #menu { padding:120px 40px 100px; max-width:1240px; margin:0 auto; }
+    .menu-head { text-align:center; margin-bottom:56px; }
+
+    .tabs-wrap {
+      background:var(--dark); border:1px solid var(--border); border-radius:10px;
+      padding:5px; display:flex; gap:3px;
+      overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+      margin-bottom:48px;
+    }
+    .tabs-wrap::-webkit-scrollbar { display:none; }
+    .t-btn {
+      padding:10px 18px; background:transparent; border:none;
+      color:var(--muted); font-size:.74rem; font-weight:600;
+      letter-spacing:.08em; text-transform:uppercase;
+      border-radius:7px; transition:all .25s; white-space:nowrap;
+      min-height:42px;
+    }
+    .t-btn:hover { color:var(--text); background:rgba(255,255,255,.05); }
+    .t-btn.on { background:linear-gradient(135deg,var(--red),#B83208); color:#fff; box-shadow:0 4px 16px rgba(200,57,11,.4); }
+
+    .t-panel { display:none; animation:panelIn .35s ease both; }
+    .t-panel.on { display:block; }
+    @keyframes panelIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── DEALS ── */
+    .deals-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:20px; }
+    .deal-card {
+      background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden;
+      transition:transform .3s,border-color .3s,box-shadow .3s; position:relative;
+    }
+    .deal-card:hover { transform:translateY(-6px); border-color:var(--border-2); box-shadow:0 20px 56px rgba(0,0,0,.45); }
+    .deal-img { height:200px; position:relative; }
+    .deal-ribbon { position:absolute; top:14px; right:14px; background:linear-gradient(135deg,var(--red),var(--red-2)); color:#fff; padding:5px 12px; border-radius:50px; font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; box-shadow:0 4px 12px rgba(200,57,11,.45); }
+    .deal-ribbon.v { background:linear-gradient(135deg,#7C3AED,#5B21B6); box-shadow:0 4px 12px rgba(124,58,237,.4); }
+    .deal-body { padding:22px 24px; }
+    .deal-name { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:#fff; margin-bottom:5px; }
+    .deal-desc { color:var(--muted); font-size:.8rem; line-height:1.65; margin-bottom:16px; }
+    .deal-items { list-style:none; margin-bottom:18px; display:flex; flex-direction:column; gap:5px; }
+    .deal-items li { display:flex; align-items:center; gap:9px; font-size:.82rem; color:rgba(255,255,255,.7); }
+    .deal-items li::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+    .deal-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .deal-price { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--gold); }
+    .deal-price small { font-family:'Inter',sans-serif; font-size:.82rem; font-weight:400; color:var(--muted); }
+    .btn-add-deal {
+      display:inline-flex; align-items:center; gap:7px;
+      background:linear-gradient(135deg,var(--red),#D64A1A);
+      color:#fff; border:none; padding:11px 20px; border-radius:6px;
+      font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      transition:transform .2s,box-shadow .2s; white-space:nowrap;
+      box-shadow:0 4px 14px rgba(200,57,11,.35);
+    }
+    .btn-add-deal:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(200,57,11,.5); }
+    .btn-add-deal:active { transform:scale(.96); }
+
+    /* ── FOOD GRID ── */
+    .food-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); }
+    .food-item {
+      display:flex; align-items:center; gap:16px; padding:18px 20px;
+      background:var(--card); border-bottom:1px solid rgba(255,255,255,.04);
+      border-right:1px solid rgba(255,255,255,.04);
+      transition:background .25s;
+    }
+    .food-item:hover { background:var(--card-2); }
+    .food-thumb { width:82px; height:82px; border-radius:10px; overflow:hidden; flex-shrink:0; transition:transform .3s; }
+    .food-item:hover .food-thumb { transform:scale(1.06); }
+    .fi-body { flex:1; min-width:0; }
+    .fi-name { font-size:.92rem; font-weight:600; color:#fff; margin-bottom:4px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .fi-desc { font-size:.76rem; color:var(--muted); line-height:1.55; }
+    .fi-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink:0; }
+    .fi-price { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--gold); white-space:nowrap; }
+    .btn-add {
+      display:flex; align-items:center; justify-content:center;
+      width:34px; height:34px; border-radius:50%;
+      background:rgba(200,57,11,.15); border:1px solid rgba(200,57,11,.35);
+      color:var(--red-2); font-size:1.1rem; font-weight:700;
+      transition:all .2s; line-height:1;
+    }
+    .btn-add:hover { background:var(--red); border-color:var(--red); color:#fff; transform:scale(1.1); }
+    .btn-add:active { transform:scale(.92); }
+
+    /* Badges */
+    .b-pop { background:linear-gradient(90deg,var(--gold),#E07B00); color:#000; font-size:.56rem; font-weight:700; padding:2px 7px; border-radius:50px; letter-spacing:.08em; text-transform:uppercase; }
+    .b-veg { background:rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.35); color:#4ADE80; font-size:.56rem; font-weight:700; padding:2px 7px; border-radius:50px; letter-spacing:.08em; text-transform:uppercase; }
+    .spicy { font-size:.72rem; }
+
+    /* ───────────────────────────────────────────
+       HORAIRES
+    ─────────────────────────────────────────── */
+    #horaires { background:var(--dark); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:120px 40px; }
+    .hor-inner { max-width:1060px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+    .hours-table { width:100%; border-collapse:collapse; margin-top:32px; }
+    .hours-table tr { border-bottom:1px solid rgba(255,255,255,.06); }
+    .hours-table tr:last-child { border-bottom:none; }
+    .hours-table td { padding:13px 0; font-size:.87rem; }
+    .hours-table td:first-child { color:rgba(255,255,255,.6); font-weight:500; }
+    .hours-table td:last-child { text-align:right; font-weight:600; color:#fff; line-height:1.7; }
+    .hours-table tr.closed td { color:rgba(255,255,255,.25) !important; }
+    .hours-table tr.today td { color:var(--gold) !important; }
+    .today-tag { display:inline-block; background:rgba(245,166,35,.14); color:var(--gold); font-size:.56rem; font-weight:700; padding:2px 7px; border-radius:50px; letter-spacing:.1em; text-transform:uppercase; margin-left:7px; vertical-align:middle; }
+    .contact-stack { margin-top:40px; display:flex; flex-direction:column; gap:14px; }
+    .ci { display:flex; align-items:center; gap:14px; transition:opacity .2s; }
+    .ci:hover { opacity:.8; }
+    .ci-icon { width:44px; height:44px; border-radius:9px; background:rgba(245,166,35,.08); border:1px solid rgba(245,166,35,.2); display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:.95rem; flex-shrink:0; transition:all .25s; }
+    .ci:hover .ci-icon { background:var(--red); border-color:var(--red); color:#fff; }
+    .ci-text { font-size:.87rem; color:var(--text); }
+    .ci-text small { display:block; color:var(--muted); font-size:.72rem; margin-top:2px; }
+    .hor-photo { border-radius:16px; overflow:hidden; height:460px; position:relative; }
+    .hor-photo::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(200,57,11,.12) 0%,transparent 50%,rgba(245,166,35,.08) 100%); pointer-events:none; }
+
+    /* ───────────────────────────────────────────
+       CART PANEL
+    ─────────────────────────────────────────── */
+    .cart-overlay {
+      position:fixed; inset:0; z-index:1000;
+      background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .cart-overlay.open { opacity:1; pointer-events:all; }
+
+    .cart-panel {
+      position:fixed; top:0; right:0; bottom:0; z-index:1001;
+      width:min(420px, 100vw);
+      background:var(--dark); border-left:1px solid var(--border);
+      display:flex; flex-direction:column;
+      transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
+      overflow:hidden;
+    }
+    .cart-panel.open { transform:translateX(0); }
+
+    /* Cart header */
+    .cart-head {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.07);
+      flex-shrink:0;
+    }
+    .cart-head-title { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:#fff; }
+    .cart-head-count { font-size:.72rem; color:var(--muted); margin-top:2px; }
+    .cart-close {
+      width:36px; height:36px; border-radius:50%;
+      background:rgba(255,255,255,.07); border:none; color:var(--muted);
+      font-size:1rem; display:flex; align-items:center; justify-content:center;
+      transition:all .2s;
+    }
+    .cart-close:hover { background:rgba(255,255,255,.12); color:#fff; }
+
+    /* Cart steps */
+    .cart-steps { display:flex; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,.07); }
+    .cart-step-btn {
+      flex:1; padding:11px 8px; background:transparent; border:none;
+      color:var(--muted); font-size:.7rem; font-weight:600;
+      letter-spacing:.08em; text-transform:uppercase;
+      border-bottom:2px solid transparent; transition:all .25s;
+    }
+    .cart-step-btn.active { color:var(--gold); border-color:var(--gold); }
+    .cart-step-btn:disabled { opacity:.3; cursor:not-allowed; }
+
+    /* Step views */
+    .cart-view { display:none; flex:1; flex-direction:column; overflow:hidden; }
+    .cart-view.active { display:flex; }
+
+    /* Step 1 — items */
+    .cart-items { flex:1; overflow-y:auto; padding:16px; -webkit-overflow-scrolling:touch; }
+    .cart-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:12px; color:var(--muted); text-align:center; padding:40px; }
+    .cart-empty i { font-size:2.5rem; opacity:.3; }
+    .cart-empty p { font-size:.85rem; line-height:1.6; }
+
+    .ci-row {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 0; border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .ci-row:last-child { border-bottom:none; }
+    .ci-row-name { flex:1; font-size:.88rem; font-weight:600; color:#fff; }
+    .ci-row-price { font-size:.85rem; color:var(--gold); font-weight:700; white-space:nowrap; margin-right:4px; }
+    .qty-ctrl { display:flex; align-items:center; gap:8px; }
+    .qty-btn {
+      width:28px; height:28px; border-radius:50%;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+      color:#fff; font-size:.95rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .2s; line-height:1;
+    }
+    .qty-btn:hover { background:var(--red); border-color:var(--red); }
+    .qty-val { font-size:.9rem; font-weight:700; color:#fff; min-width:18px; text-align:center; }
+
+    .cart-footer { padding:16px; border-top:1px solid rgba(255,255,255,.07); flex-shrink:0; padding-bottom:calc(16px + var(--safe-b)); }
+    .cart-subtotal { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+    .cart-subtotal span:first-child { font-size:.82rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600; }
+    .cart-subtotal span:last-child { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#fff; }
+    .cart-min-warn { font-size:.74rem; color:#EF4444; margin-bottom:10px; display:none; }
+    .btn-checkout {
+      width:100%; padding:15px; border-radius:8px; border:none;
+      background:linear-gradient(135deg,var(--red),var(--red-2));
+      color:#fff; font-size:.88rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      transition:all .25s; box-shadow:0 6px 20px rgba(200,57,11,.4);
+      display:flex; align-items:center; justify-content:center; gap:10px;
+    }
+    .btn-checkout:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(200,57,11,.6); }
+    .btn-checkout:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+    /* Step 2 — checkout form */
+    .checkout-form { flex:1; overflow-y:auto; padding:20px 20px 8px; -webkit-overflow-scrolling:touch; }
+    .mode-toggle { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:24px; }
+    .mode-btn {
+      padding:14px 8px; border-radius:8px;
+      background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.08);
+      color:var(--muted); font-size:.8rem; font-weight:600;
+      letter-spacing:.06em; text-transform:uppercase;
+      transition:all .25s; display:flex; flex-direction:column; align-items:center; gap:5px;
+    }
+    .mode-btn i { font-size:1.3rem; }
+    .mode-btn.selected { background:rgba(200,57,11,.12); border-color:var(--red); color:#fff; }
+    .mode-btn.selected i { color:var(--red-2); }
+
+    .form-section { margin-bottom:20px; }
+    .form-section-title { font-size:.68rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    .form-row.full { grid-template-columns:1fr; }
+    .fgroup { display:flex; flex-direction:column; gap:5px; }
+    .fgroup label { font-size:.72rem; font-weight:600; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+    .fgroup input, .fgroup textarea, .fgroup select {
+      background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+      border-radius:7px; color:#fff;
+      padding:12px 14px; font-size:16px; /* 16px prevents zoom on iOS/Android */
+      font-family:'Inter',sans-serif;
+      transition:border-color .2s;
+      outline:none; width:100%;
+    }
+    .fgroup input:focus, .fgroup textarea:focus, .fgroup select:focus { border-color:var(--gold); }
+    .fgroup input::placeholder, .fgroup textarea::placeholder { color:rgba(255,255,255,.2); }
+    .fgroup input.error, .fgroup select.error { border-color:#EF4444; }
+    .fgroup .err-msg { font-size:.7rem; color:#EF4444; display:none; }
+    .fgroup .err-msg.show { display:block; }
+    .fgroup textarea { resize:none; height:74px; }
+    .fgroup select option { background:#1d1d1d; }
+
+    .delivery-fields { display:none; }
+    .delivery-fields.show { display:block; }
+
+    .promo-block { margin-top:6px; margin-bottom:20px; }
+    .promo-label { font-size:.72rem; font-weight:600; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:7px; display:block; }
+    .promo-eligible { display:flex; align-items:center; gap:8px; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3); border-radius:7px; padding:10px 12px; font-size:.8rem; color:#4ADE80; }
+    .promo-eligible i { font-size:1rem; }
+
+    .checkout-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,.07); flex-shrink:0; padding-bottom:calc(16px + var(--safe-b)); }
+    .checkout-total-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; font-size:.83rem; }
+    .checkout-total-row.main { font-weight:700; font-size:1rem; color:#fff; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.07); }
+    .checkout-total-row span:last-child { color:var(--gold); font-weight:700; }
+    .checkout-total-row.main span:last-child { font-family:'Playfair Display',serif; font-size:1.45rem; }
+    .checkout-total-row span:first-child { color:var(--muted); }
+    .checkout-total-row.main span:first-child { color:#fff; }
+    .btn-pay {
+      width:100%; margin-top:14px; padding:16px; border-radius:8px; border:none;
+      background:linear-gradient(135deg,var(--red),var(--red-2));
+      color:#fff; font-size:.9rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      transition:all .25s; box-shadow:0 6px 20px rgba(200,57,11,.4);
+      display:flex; align-items:center; justify-content:center; gap:10px;
+    }
+    .btn-pay:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(200,57,11,.6); }
+    .btn-pay:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .pay-spinner { display:none; width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .pay-err { font-size:.75rem; color:#EF4444; margin-top:8px; text-align:center; display:none; }
+
+    /* ───────────────────────────────────────────
+       FLOATING CART (mobile)
+    ─────────────────────────────────────────── */
+    .fab-cart {
+      display:none;
+      position:fixed; bottom:calc(80px + var(--safe-b)); right:20px; z-index:800;
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg,var(--red),var(--red-2));
+      color:#fff; font-size:1.25rem;
+      border:none; box-shadow:0 8px 28px rgba(200,57,11,.5);
+      align-items:center; justify-content:center;
+      transition:transform .25s;
+    }
+    .fab-cart.show { display:flex; }
+    .fab-cart:hover { transform:scale(1.08); }
+    .fab-cart-badge {
+      display:none; position:absolute; top:-6px; right:-6px;
+      background:#fff; color:var(--red); font-size:.6rem; font-weight:800;
+      width:20px; height:20px; border-radius:50%;
+      align-items:center; justify-content:center;
+      border:2px solid var(--black);
+    }
+    .fab-cart-badge.show { display:flex; }
+
+    /* ───────────────────────────────────────────
+       MOBILE BOTTOM BAR
+    ─────────────────────────────────────────── */
+    .mobile-bar {
+      display:none;
+      position:fixed; bottom:0; left:0; right:0; z-index:850;
+      background:rgba(8,8,8,.97); backdrop-filter:blur(20px);
+      border-top:1px solid var(--border);
+      padding:12px 16px;
+      padding-bottom:calc(12px + var(--safe-b));
+    }
+    .mobile-bar button {
+      width:100%; padding:15px; border-radius:8px; border:none;
+      background:linear-gradient(135deg,var(--red),var(--red-2));
+      color:#fff; font-size:.88rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      display:flex; align-items:center; justify-content:center; gap:9px;
+      box-shadow:0 4px 18px rgba(200,57,11,.4);
+      transition:all .25s;
+    }
+
+    /* ───────────────────────────────────────────
+       FOOTER
+    ─────────────────────────────────────────── */
+    footer { background:#050505; border-top:1px solid var(--border); padding:64px 40px 36px; }
+    .foot-grid { max-width:1240px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr; gap:56px; padding-bottom:44px; border-bottom:1px solid rgba(255,255,255,.06); }
+    .foot-brand .fb1 { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:#fff; }
+    .foot-brand .fb2 { display:block; font-size:.58rem; letter-spacing:.28em; color:var(--gold); text-transform:uppercase; margin-bottom:16px; }
+    .foot-brand p { color:var(--muted); font-size:.83rem; line-height:1.72; max-width:280px; }
+    .foot-col h5 { color:#fff; font-size:.7rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; margin-bottom:18px; }
+    .foot-col ul { list-style:none; display:flex; flex-direction:column; gap:9px; }
+    .foot-col a { color:var(--muted); font-size:.83rem; transition:color .2s; }
+    .foot-col a:hover { color:var(--gold); }
+    .foot-bottom { max-width:1240px; margin:0 auto; padding-top:26px; display:flex; justify-content:space-between; align-items:center; color:rgba(255,255,255,.25); font-size:.74rem; }
+
+    /* ───────────────────────────────────────────
+       KEYFRAMES
+    ─────────────────────────────────────────── */
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(26px)}  to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+
+    /* ───────────────────────────────────────────
+       RESPONSIVE — Samsung Galaxy Note 20 5G & mobile
+    ─────────────────────────────────────────── */
+    @media (max-width:900px) {
+      #nav, #nav.solid { padding:13px 20px; }
+      .nav-links { display:none; }
+      #menu { padding:80px 16px 72px; }
+      .tabs-wrap { margin-bottom:36px; }
+      .t-btn { padding:9px 14px; font-size:.68rem; min-height:40px; }
+      .food-grid { grid-template-columns:1fr; }
+      .food-item { padding:14px 16px; gap:13px; }
+      .food-thumb { width:72px; height:72px; }
+      .fi-name { font-size:.88rem; }
+      .fi-desc { font-size:.74rem; }
+      .fi-price { font-size:1rem; }
+      .btn-add { width:32px; height:32px; font-size:1rem; }
+      #horaires { padding:80px 20px; }
+      .hor-inner { grid-template-columns:1fr; gap:44px; }
+      .hor-photo { display:none; }
+      footer { padding:52px 20px 28px; }
+      .foot-grid { grid-template-columns:1fr; gap:36px; }
+      .foot-bottom { flex-direction:column; gap:8px; text-align:center; }
+      .mobile-bar { display:block; }
+      body { padding-bottom:calc(74px + var(--safe-b)); }
+      .fab-cart { bottom:calc(84px + var(--safe-b)); }
+    }
+    @media (max-width:480px) {
+      .hero-title { font-size:clamp(2.6rem,13vw,3.8rem); }
+      .deals-grid { grid-template-columns:1fr; }
+      .deal-footer { flex-direction:column; align-items:flex-start; }
+      .btn-add-deal { width:100%; justify-content:center; }
+      .cart-panel { width:100vw; border-left:none; }
+      .form-row { grid-template-columns:1fr; }
+    }
+
+    /* Toast notification */
+    .toast {
+      position:fixed; bottom:calc(90px + var(--safe-b)); left:50%; transform:translateX(-50%) translateY(20px);
+      z-index:2000; background:var(--card-2); border:1px solid var(--border-2);
+      color:#fff; padding:10px 20px; border-radius:8px; font-size:.82rem; font-weight:600;
+      opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* Cross-promo Panuozzo */
+    .section-panuozzo { background:linear-gradient(145deg,#111 0%,#1f0808 100%); border-top:1px solid rgba(239,68,68,.2); border-bottom:1px solid rgba(239,68,68,.2); padding:28px 0; }
+    .panuozzo-inner { max-width:1060px; margin:0 auto; padding:0 40px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+    .panuozzo-left { display:flex; flex-direction:column; gap:4px; }
+    .panuozzo-brand { display:flex; flex-direction:column; line-height:1.1; }
+    .panuozzo-b1 { font-family:'Great Vibes',cursive; font-size:2.4rem; font-weight:400; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.4); }
+    .panuozzo-b1 .p-red   { color:#ef4444; }
+    .panuozzo-b1 .p-white { color:#ffffff; }
+    .panuozzo-b1 .p-green { color:#4ade80; }
+    .panuozzo-b2 { font-size:.55rem; font-weight:700; letter-spacing:.32em; text-transform:uppercase; color:#4ade80; margin-top:2px; }
+    .panuozzo-desc { font-size:.82rem; color:rgba(255,255,255,.5); max-width:420px; margin:0; line-height:1.5; }
+    .panuozzo-cta { display:inline-block; padding:10px 22px; border:1.5px solid rgba(74,222,128,.4); border-radius:50px; color:#4ade80; font-size:.82rem; font-weight:600; text-decoration:none; white-space:nowrap; transition:background .2s, border-color .2s; }
+    .panuozzo-cta:hover { background:rgba(74,222,128,.1); border-color:#4ade80; }
+    @media (max-width:600px) {
+      .panuozzo-inner { padding:0 20px; flex-direction:column; align-items:flex-start; }
+      .panuozzo-cta { align-self:stretch; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════ -->
+<nav id="nav">
+  <a href="#hero" class="nav-brand">
+    <span class="b1">My Thai</span>
+    <span class="b2">Street Food</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#horaires">Horaires</a></li>
+    <li><a href="#horaires">Nous trouver</a></li>
+  </ul>
+  <button class="nav-cart" id="navCartBtn" aria-label="Voir le panier">
+    <i class="fas fa-bag-shopping"></i>
+    <span>Panier</span>
+    <div class="cart-badge" id="navCartBadge"></div>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     CART OVERLAY + PANEL
+════════════════════════════════════════════ -->
+<div class="cart-overlay" id="cartOverlay"></div>
+
+<div class="cart-panel" id="cartPanel" role="dialog" aria-label="Votre panier" aria-modal="true">
+  <!-- Header -->
+  <div class="cart-head">
+    <div>
+      <div class="cart-head-title">Votre commande</div>
+      <div class="cart-head-count" id="cartHeadCount">0 article</div>
+    </div>
+    <button class="cart-close" id="cartCloseBtn" aria-label="Fermer"><i class="fas fa-times"></i></button>
+  </div>
+
+  <!-- Steps nav -->
+  <div class="cart-steps">
+    <button class="cart-step-btn active" id="stepBtn1" data-step="1">🛒 Panier</button>
+    <button class="cart-step-btn" id="stepBtn2" data-step="2" disabled>📋 Commande</button>
+  </div>
+
+  <!-- ── STEP 1 : Cart items ── -->
+  <div class="cart-view active" id="cartView1">
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty" id="cartEmpty">
+        <i class="fas fa-bag-shopping"></i>
+        <p>Votre panier est vide.<br>Parcourez notre carte et ajoutez des plats !</p>
+      </div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-subtotal">
+        <span>Sous-total</span>
+        <span id="cartSubtotal">0,00 €</span>
+      </div>
+      <div class="cart-min-warn" id="cartMinWarn"></div>
+      <button class="btn-checkout" id="btnCheckout" disabled>
+        <i class="fas fa-arrow-right"></i> Passer à la caisse
+      </button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2 : Checkout form ── -->
+  <div class="cart-view" id="cartView2">
+    <div class="checkout-form" id="checkoutForm">
+
+      <!-- Mode -->
+      <div class="form-section">
+        <div class="form-section-title">Mode de réception</div>
+        <div class="mode-toggle">
+          <button class="mode-btn selected" id="modeEmporter" data-mode="emporter">
+            <i class="fas fa-store"></i> À emporter
+          </button>
+          <button class="mode-btn" id="modeLivraison" data-mode="livraison">
+            <i class="fas fa-motorcycle"></i> Livraison
+          </button>
+        </div>
+        <div id="livZoneMsg" style="font-size:.74rem;color:var(--muted);margin-top:-8px;margin-bottom:16px;display:none">
+          Zones : Bougival, Le Pecq, Louveciennes, La Celle-Saint-Cloud, Croissy, Chatou, Marly-le-Roi, Rueil-Malmaison, Saint-Cloud — Frais de livraison : <strong style="color:var(--gold)">2,50 €</strong>
+        </div>
+      </div>
+
+      <!-- Infos personnelles -->
+      <div class="form-section">
+        <div class="form-section-title">Vos informations</div>
+        <div class="form-row">
+          <div class="fgroup">
+            <label for="fPrenom">Prénom *</label>
+            <input type="text" id="fPrenom" autocomplete="given-name" required>
+            <span class="err-msg" id="errPrenom">Prénom requis</span>
+          </div>
+          <div class="fgroup">
+            <label for="fNom">Nom *</label>
+            <input type="text" id="fNom" autocomplete="family-name" required>
+            <span class="err-msg" id="errNom">Nom requis</span>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="fgroup">
+            <label for="fPhone">Téléphone *</label>
+            <input type="tel" id="fPhone" autocomplete="tel" placeholder="06 12 34 56 78" required>
+            <span class="err-msg" id="errPhone">Téléphone requis</span>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="fgroup">
+            <label for="fEmail">Email * <span style="font-size:.65rem;color:var(--muted);text-transform:none;letter-spacing:0">(confirmation + suivi)</span></label>
+            <input type="email" id="fEmail" autocomplete="email" placeholder="vous@email.com" required>
+            <span class="err-msg" id="errEmail">Email invalide</span>
+          </div>
+        </div>
+
+        <!-- Promo 1ère commande -->
+        <div class="promo-block" id="promoBlock" style="display:none">
+          <div class="promo-eligible">
+            <i class="fas fa-tag"></i>
+            <span>🎉 Vous bénéficiez de <strong>-10%</strong> sur votre première commande !</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adresse livraison -->
+      <div class="form-section delivery-fields" id="deliveryFields">
+        <div class="form-section-title">Adresse de livraison</div>
+        <div class="form-row full">
+          <div class="fgroup">
+            <label for="fAddress">Adresse (rue + n°) *</label>
+            <input type="text" id="fAddress" autocomplete="street-address" placeholder="12 rue des Lilas">
+            <span class="err-msg" id="errAddress">Adresse requise</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fgroup">
+            <label for="fZip">Code postal *</label>
+            <input type="text" id="fZip" autocomplete="postal-code" placeholder="78380" maxlength="5" inputmode="numeric">
+            <span class="err-msg" id="errZip">Zone non couverte</span>
+          </div>
+          <div class="fgroup">
+            <label for="fCity">Ville *</label>
+            <input type="text" id="fCity" autocomplete="address-level2" placeholder="Bougival">
+            <span class="err-msg" id="errCity">Ville requise</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fgroup">
+            <label for="fFloor">Étage / Apt</label>
+            <input type="text" id="fFloor" placeholder="2ème, Apt 15">
+          </div>
+          <div class="fgroup">
+            <label for="fCode">Code accès</label>
+            <input type="text" id="fCode" placeholder="A1234">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="fgroup">
+            <label for="fInstructions">Instructions</label>
+            <textarea id="fInstructions" placeholder="Interphone, badge, consignes..."></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /checkout-form -->
+
+    <div class="checkout-footer">
+      <div class="checkout-total-row"><span>Sous-total</span><span id="co-subtotal">—</span></div>
+      <div class="checkout-total-row" id="co-deliv-row" style="display:none"><span>Livraison</span><span>2,50 €</span></div>
+      <div class="checkout-total-row" id="co-promo-row" style="display:none"><span>Réduction -10%</span><span id="co-promo-val">—</span></div>
+      <div class="checkout-total-row main"><span>Total</span><span id="co-total">—</span></div>
+      <div class="pay-err" id="payErr"></div>
+      <button class="btn-pay" id="btnPay">
+        <span id="payText"><i class="fas fa-lock"></i> &nbsp;Payer en ligne</span>
+        <div class="pay-spinner" id="paySpinner"></div>
+      </button>
+    </div>
+  </div><!-- /cartView2 -->
+</div><!-- /cartPanel -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Floating cart (mobile) -->
+<button class="fab-cart" id="fabCart" aria-label="Ouvrir le panier">
+  <i class="fas fa-bag-shopping"></i>
+  <div class="fab-cart-badge" id="fabCartBadge"></div>
+</button>
+
+<!-- Mobile bottom bar -->
+<div class="mobile-bar">
+  <button id="mobileOrderBtn">
+    <i class="fas fa-bag-shopping"></i> Commander en ligne
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div id="particles"></div>
+  <div class="hero-inner">
+    <div class="hero-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Ouvert maintenant · Bougival</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="t1">My Thai</span>
+      <span class="t2">Street</span>
+      <span class="t3">Food</span>
+    </h1>
+    <p class="hero-tagline">Saveurs authentiques de Bangkok</p>
+    <div class="hero-actions">
+      <button class="btn-fire" id="heroOrderBtn">
+        <i class="fas fa-bag-shopping"></i> Commander maintenant
+      </button>
+      <a href="#menu" class="btn-outline">
+        <i class="fas fa-utensils"></i> Voir la carte
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll"><div class="scroll-bar"></div>Découvrir</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PROMO PREMIÈRE COMMANDE
+════════════════════════════════════════════ -->
+<section class="section-promo">
+  <div class="promo-inner">
+    <div>
+      <h2>🎉 -10% sur votre première commande</h2>
+      <p>La remise est appliquée automatiquement — entrez simplement votre email lors du paiement.</p>
+    </div>
+    <div class="promo-tag">
+      <span style="font-size:1.4rem">🍜</span>
+      <span>Aucun code à saisir</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MENU
+════════════════════════════════════════════ -->
+<section id="menu">
+  <div class="menu-head reveal">
+    <div class="s-label">Nos saveurs</div>
+    <h2 class="s-title">Notre <em>Carte</em></h2>
+    <div class="s-bar center"></div>
+  </div>
+
+  <div class="tabs-wrap" id="tabsWrap">
+    <button class="t-btn on"  data-tab="deals">🎁 Deals & Menus</button>
+    <button class="t-btn"     data-tab="street">🥢 Street Food</button>
+    <button class="t-btn"     data-tab="sigs">⭐ Signatures</button>
+    <button class="t-btn"     data-tab="class">🍜 Classiques</button>
+    <button class="t-btn"     data-tab="yaki">🔥 Yakitori</button>
+    <button class="t-btn"     data-tab="dess">🍮 Desserts</button>
+    <button class="t-btn"     data-tab="drinks">🥤 Boissons</button>
+  </div>
+
+  <!-- ── DEALS ── -->
+  <div class="t-panel on" id="p-deals">
+    <div class="deals-grid">
+
+      <div class="deal-card">
+        <div class="deal-img ph"><i class="fas fa-bowl-food"></i><span>Photo menu express</span></div>
+        <div class="deal-ribbon">⭐ Populaire</div>
+        <div class="deal-body">
+          <h3 class="deal-name">Menu Express</h3>
+          <p class="deal-desc">Le combo parfait pour une pause déjeuner rapide et généreuse.</p>
+          <ul class="deal-items">
+            <li>1 Entrée au choix</li>
+            <li>1 Plat au choix</li>
+            <li>1 Boisson incluse</li>
+          </ul>
+          <div class="deal-footer">
+            <div class="deal-price">15€ <small>/ pers.</small></div>
+            <button class="btn-add-deal" data-name="Menu Express" data-price="15"><i class="fas fa-plus"></i> Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="deal-card">
+        <div class="deal-img ph"><i class="fas fa-utensils"></i><span>Photo menu découverte</span></div>
+        <div class="deal-body">
+          <h3 class="deal-name">Menu Découverte</h3>
+          <p class="deal-desc">L'expérience thaïlandaise complète, de l'entrée au dessert.</p>
+          <ul class="deal-items">
+            <li>1 Entrée au choix</li>
+            <li>1 Plat signature au choix</li>
+            <li>1 Dessert au choix</li>
+            <li>1 Boisson incluse</li>
+          </ul>
+          <div class="deal-footer">
+            <div class="deal-price">19€ <small>/ pers.</small></div>
+            <button class="btn-add-deal" data-name="Menu Découverte" data-price="19"><i class="fas fa-plus"></i> Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="deal-card">
+        <div class="deal-img ph"><i class="fas fa-heart"></i><span>Photo menu partage</span></div>
+        <div class="deal-ribbon v">Pour 2</div>
+        <div class="deal-body">
+          <h3 class="deal-name">Menu Partage</h3>
+          <p class="deal-desc">Vivez l'aventure culinaire de Bangkok à deux.</p>
+          <ul class="deal-items">
+            <li>Assortiment street food (6 pièces)</li>
+            <li>2 Plats signatures au choix</li>
+            <li>2 Desserts au choix</li>
+            <li>2 Boissons incluses</li>
+          </ul>
+          <div class="deal-footer">
+            <div class="deal-price">35€ <small>/ 2 pers.</small></div>
+            <button class="btn-add-deal" data-name="Menu Partage (pour 2)" data-price="35"><i class="fas fa-plus"></i> Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── STREET FOOD ── -->
+  <div class="t-panel" id="p-street">
+    <div class="food-grid">
+      <div class="food-item" data-name="Pad Thaï Crevettes" data-price="13">
+        <div class="food-thumb ph"><!-- <img src="images/pad-thai-crevettes.jpg"> --></div>
+        <div class="fi-body">
+          <div class="fi-name">Pad Thaï Crevettes <span class="b-pop">Populaire</span></div>
+          <div class="fi-desc">Nouilles de riz sautées, crevettes tigrées, cacahuètes, citron vert</div>
+        </div>
+        <div class="fi-right"><div class="fi-price">13€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Nems Croustillants" data-price="8">
+        <div class="food-thumb ph"><!-- <img src="images/nems.jpg"> --></div>
+        <div class="fi-body">
+          <div class="fi-name">Nems Croustillants</div>
+          <div class="fi-desc">Rouleaux frits porc & légumes, sauce nuoc-mâm maison (×3)</div>
+        </div>
+        <div class="fi-right"><div class="fi-price">8€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Satay Poulet" data-price="9">
+        <div class="food-thumb ph"><!-- <img src="images/satay.jpg"> --></div>
+        <div class="fi-body">
+          <div class="fi-name">Satay Poulet <span class="b-pop">Populaire</span></div>
+          <div class="fi-desc">Brochettes marinées grillées, sauce arachide crémeuse (×4)</div>
+        </div>
+        <div class="fi-right"><div class="fi-price">9€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Bao Bun Porc Caramélisé" data-price="7">
+        <div class="food-thumb ph"><!-- <img src="images/bao-bun.jpg"> --></div>
+        <div class="fi-body">
+          <div class="fi-name">Bao Bun Porc Caramélisé</div>
+          <div class="fi-desc">Pain vapeur brioché, porc fondant, pickles concombre, coriandre</div>
+        </div>
+        <div class="fi-right"><div class="fi-price">7€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Wonton Frits" data-price="8">
+        <div class="food-thumb ph"><!-- <img src="images/wonton.jpg"> --></div>
+        <div class="fi-body">
+          <div class="fi-name">Wonton Frits</div>
+          <div class="fi-desc">Raviolis croustillants farce crevette & porc, sauce aigre-douce (×5)</div>
+        </div>
+        <div class="fi-right"><div class="fi-price">8€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Rouleaux de Printemps Frais" data-price="7">
+        <div class="food-thumb ph"><!-- <img src="images/rouleaux.jpg"> --></div>
+        <div class="fi-body">
+          <div class="fi-name">Rouleaux de Printemps Frais <span class="b-veg">Végé</span></div>
+          <div class="fi-desc">Vermicelles, crevettes, herbes fraîches, sauce hoisin-cacahuète (×2)</div>
+        </div>
+        <div class="fi-right"><div class="fi-price">7€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SIGNATURES ── -->
+  <div class="t-panel" id="p-sigs">
+    <div class="food-grid">
+      <div class="food-item" data-name="Tom Kha Gaï" data-price="14">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Tom Kha Gaï <span class="b-pop">Populaire</span></div><div class="fi-desc">Soupe crémeuse coco & galanga, poulet, champignons, citronnelle</div></div>
+        <div class="fi-right"><div class="fi-price">14€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Massaman Curry Bœuf" data-price="16">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Massaman Curry Bœuf <span class="b-pop">Populaire</span></div><div class="fi-desc">Curry doux bœuf confit, pommes de terre, noix de cajou, lait de coco</div></div>
+        <div class="fi-right"><div class="fi-price">16€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Pad See Ew" data-price="14">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Pad See Ew <span class="spicy">🌶</span></div><div class="fi-desc">Larges nouilles de riz sautées, bœuf, brocoli, sauce soja noire</div></div>
+        <div class="fi-right"><div class="fi-price">14€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Laab Moo" data-price="13">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Laab Moo <span class="spicy">🌶🌶</span></div><div class="fi-desc">Salade de porc pimentée, menthe, herbes fraîches, riz grillé</div></div>
+        <div class="fi-right"><div class="fi-price">13€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Pla Rad Prik" data-price="18">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Pla Rad Prik</div><div class="fi-desc">Poisson entier frit, sauce basilic thaï & piments, légumes sautés</div></div>
+        <div class="fi-right"><div class="fi-price">18€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Gaeng Keow Wan" data-price="15">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Gaeng Keow Wan <span class="b-pop">Populaire</span> <span class="spicy">🌶</span></div><div class="fi-desc">Curry vert poulet, aubergines thaï, lait de coco, basilic sacré</div></div>
+        <div class="fi-right"><div class="fi-price">15€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Khao Pad Sapparot" data-price="15">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Khao Pad Sapparot</div><div class="fi-desc">Riz sauté dans l'ananas, crevettes, noix de cajou, raisins secs</div></div>
+        <div class="fi-right"><div class="fi-price">15€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLASSIQUES ── -->
+  <div class="t-panel" id="p-class">
+    <div class="food-grid">
+      <div class="food-item" data-name="Pad Thaï Poulet" data-price="12">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Pad Thaï Poulet <span class="b-pop">Populaire</span></div><div class="fi-desc">Nouilles de riz, poulet, œuf, germes de soja, cacahuètes grillées</div></div>
+        <div class="fi-right"><div class="fi-price">12€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Riz Cantonais" data-price="10">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Riz Cantonais</div><div class="fi-desc">Riz sauté, légumes, œuf, sauce soja, poulet ou crevettes au choix</div></div>
+        <div class="fi-right"><div class="fi-price">10€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Tom Yum" data-price="11">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Tom Yum <span class="spicy">🌶🌶</span></div><div class="fi-desc">Soupe pimentée citronnelle, champignons, crevettes, kaffir lime</div></div>
+        <div class="fi-right"><div class="fi-price">11€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Gai Pad Krapow" data-price="13">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Gai Pad Krapow <span class="b-pop">Populaire</span> <span class="spicy">🌶</span></div><div class="fi-desc">Poulet haché sauté au basilic sacré, œuf au plat, riz jasmin</div></div>
+        <div class="fi-right"><div class="fi-price">13€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Bœuf aux Oignons" data-price="13">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Bœuf aux Oignons</div><div class="fi-desc">Émincé de bœuf, oignons dorés, sauce huître, poivrons colorés</div></div>
+        <div class="fi-right"><div class="fi-price">13€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Crevettes au Gingembre" data-price="15">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Crevettes au Gingembre</div><div class="fi-desc">Crevettes tigrées sautées, gingembre frais, poireaux, sauce soja</div></div>
+        <div class="fi-right"><div class="fi-price">15€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Canard Laqué Hoisin" data-price="17">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Canard Laqué Hoisin</div><div class="fi-desc">Magret de canard laqué, sauce hoisin & orange, riz gluant parfumé</div></div>
+        <div class="fi-right"><div class="fi-price">17€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Légumes Sautés Tofu" data-price="11">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Légumes Sautés Tofu <span class="b-veg">Végé</span></div><div class="fi-desc">Tofu ferme, légumes de saison, sauce tamari, sésame grillé</div></div>
+        <div class="fi-right"><div class="fi-price">11€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Nouilles Sautées Bœuf" data-price="13">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Nouilles Sautées Bœuf</div><div class="fi-desc">Nouilles udon épaisses, bœuf émincé, sauce thaï maison, ciboulette</div></div>
+        <div class="fi-right"><div class="fi-price">13€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── YAKITORI ── -->
+  <div class="t-panel" id="p-yaki">
+    <div class="food-grid">
+      <div class="food-item" data-name="Yakitori Poulet Teriyaki" data-price="9">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Yakitori Poulet Teriyaki <span class="b-pop">Populaire</span></div><div class="fi-desc">Brochettes de poulet marinées saké & mirin, sauce teriyaki (×3)</div></div>
+        <div class="fi-right"><div class="fi-price">9€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Yakitori Bœuf Wasabi" data-price="11">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Yakitori Bœuf Wasabi</div><div class="fi-desc">Brochettes de bœuf mariné, mayonnaise wasabi, sésame (×3)</div></div>
+        <div class="fi-right"><div class="fi-price">11€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Yakitori Légumes" data-price="8">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Yakitori Légumes <span class="b-veg">Végé</span></div><div class="fi-desc">Poivrons, champignons shiitake, courgette, oignon, sauce tare (×4)</div></div>
+        <div class="fi-right"><div class="fi-price">8€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DESSERTS ── -->
+  <div class="t-panel" id="p-dess">
+    <div class="food-grid">
+      <div class="food-item" data-name="Mango Sticky Rice" data-price="7">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Mango Sticky Rice <span class="b-pop">Populaire</span></div><div class="fi-desc">Riz gluant, mangue fraîche, lait de coco sucré, sésame doré</div></div>
+        <div class="fi-right"><div class="fi-price">7€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Thaï Milk Tea Glacé" data-price="5">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Thaï Milk Tea Glacé <span class="b-pop">Populaire</span></div><div class="fi-desc">Thé thaï orange infusé, lait concentré, glace pilée, sirop maison</div></div>
+        <div class="fi-right"><div class="fi-price">5€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Banana Fritter Caramel" data-price="6">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Banana Fritter Caramel</div><div class="fi-desc">Bananes en tempura dorées, glace vanille, caramel beurre salé</div></div>
+        <div class="fi-right"><div class="fi-price">6€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Pudding Coco Pandan" data-price="6">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Pudding Coco Pandan</div><div class="fi-desc">Flan onctueux pandan, coulis coco, fruits frais de saison</div></div>
+        <div class="fi-right"><div class="fi-price">6€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Glace Maison Lychee" data-price="5">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Glace Maison Lychee</div><div class="fi-desc">Sorbet lychee artisanal, eau de rose, zeste citron vert, menthe</div></div>
+        <div class="fi-right"><div class="fi-price">5€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOISSONS ── -->
+  <div class="t-panel" id="p-drinks">
+    <div class="food-grid">
+      <div class="food-item" data-name="Thaï Iced Tea" data-price="4">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Thaï Iced Tea <span class="b-pop">Populaire</span></div><div class="fi-desc">Thé thaï orange, lait concentré, sirop maison, glace</div></div>
+        <div class="fi-right"><div class="fi-price">4€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Eau de Coco Fraîche" data-price="4">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Eau de Coco Fraîche</div><div class="fi-desc">100% naturelle, fraîcheur tropicale, sans sucre ajouté</div></div>
+        <div class="fi-right"><div class="fi-price">4€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Limonade Gingembre & Citron Vert" data-price="4">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Limonade Gingembre & Citron Vert</div><div class="fi-desc">Citron vert pressé, gingembre frais, menthe, eau pétillante</div></div>
+        <div class="fi-right"><div class="fi-price">4€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+      <div class="food-item" data-name="Eau Minérale" data-price="2">
+        <div class="food-thumb ph"></div>
+        <div class="fi-body"><div class="fi-name">Eau Minérale</div><div class="fi-desc">Plate ou gazeuse · 50 cl</div></div>
+        <div class="fi-right"><div class="fi-price">2€</div><button class="btn-add" aria-label="Ajouter">+</button></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CROSS-PROMO PANUOZZO
+════════════════════════════════════════════ -->
+<section class="section-panuozzo">
+  <div class="panuozzo-inner">
+    <div class="panuozzo-left">
+      <div class="panuozzo-brand">
+        <span class="panuozzo-b1"><span class="p-red">Pan</span><span class="p-white">uoz</span><span class="p-green">zo</span></span>
+        <span class="panuozzo-b2">Pizzeria Artisanale</span>
+      </div>
+      <p class="panuozzo-desc">Envie d'une pizza ce soir ? Pizzas artisanales, cuisson au feu de bois… commandez aussi chez Panuozzo.</p>
+    </div>
+    <a href="https://panuozzo-bougival.fr" target="_blank" rel="noopener" class="panuozzo-cta">Commander chez Panuozzo →</a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HORAIRES & ACCÈS
+════════════════════════════════════════════ -->
+<section id="horaires">
+  <div class="hor-inner">
+    <div>
+      <div class="s-label">Nous trouver</div>
+      <h2 class="s-title">Horaires &<br><em>Accès</em></h2>
+      <div class="s-bar"></div>
+      <table class="hours-table">
+        <tbody id="hoursBody">
+          <tr data-day="1" class="closed"><td>Lundi</td><td>Fermé</td></tr>
+          <tr data-day="2"><td>Mardi</td><td>11h00 – 15h00<br>18h00 – 23h00</td></tr>
+          <tr data-day="3"><td>Mercredi</td><td>11h00 – 15h00<br>18h00 – 23h00</td></tr>
+          <tr data-day="4"><td>Jeudi</td><td>11h00 – 15h00<br>18h00 – 23h00</td></tr>
+          <tr data-day="5"><td>Vendredi</td><td>11h00 – 15h00<br>18h00 – 23h00</td></tr>
+          <tr data-day="6"><td>Samedi</td><td>11h00 – 15h00<br>18h00 – 23h00</td></tr>
+          <tr data-day="0"><td>Dimanche</td><td>11h00 – 15h00<br>18h00 – 23h00</td></tr>
+        </tbody>
+      </table>
+      <div class="contact-stack">
+        <!-- GOOGLE MAPS — remplacer href="#" -->
+        <a href="#" class="ci" target="_blank" rel="noopener">
+          <div class="ci-icon"><i class="fas fa-location-dot"></i></div>
+          <div class="ci-text">30 avenue Jean-Moulin<small>78380 Bougival · Voir sur Google Maps</small></div>
+        </a>
+        <div class="ci">
+          <div class="ci-icon"><i class="fas fa-motorcycle"></i></div>
+          <div class="ci-text">Livraison disponible<small>Bougival, Le Pecq, Louveciennes, Chatou, Rueil-Malmaison et alentours</small></div>
+        </div>
+        <div class="ci">
+          <div class="ci-icon"><i class="fas fa-store"></i></div>
+          <div class="ci-text">À emporter · Minimum 12€<small>Commandez en ligne, récupérez sur place</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="hor-photo"><img src="images/ambiance_mythai.jpg" alt="Ambiance My Thai Street Food" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <span class="fb1">My Thai</span>
+      <span class="fb2">Street Food · Bougival</span>
+      <p>Saveurs authentiques de Thaïlande préparées avec passion. Street food, plats signatures et currys maison. Commandez en ligne, à emporter ou en livraison.</p>
+    </div>
+    <div class="foot-col">
+      <h5>Navigation</h5>
+      <ul>
+        <li><a href="#menu">Notre carte</a></li>
+        <li><a href="#horaires">Horaires</a></li>
+        <li><a href="#horaires">Nous trouver</a></li>
+        <li><a href="#" id="footOrderLink">Commander en ligne</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Informations</h5>
+      <ul>
+        <li><a href="#">30 av. Jean-Moulin, 78380 Bougival</a></li>
+        <!-- GOOGLE MAPS LINK — remplacer href="#" -->
+        <li><a href="#">Google Maps</a></li>
+        <li><a href="#">Livraison : Bougival et alentours</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 My Thai Street Food — Tous droits réservés</span>
+    <span>Fait avec ❤️ à Bougival</span>
+  </div>
+</footer>
+<div style="background:#0d0d0d;text-align:center;padding:8px;font-size:.68rem;color:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;gap:6px;">
+  <img src="images/ai-autoheal-logo.webp" alt="AI-Autoheal" style="height:16px;opacity:.35;vertical-align:middle;">
+  Site créé par AI-Autoheal
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script src="app.js" defer></script>
+
+</body>
+</html>
