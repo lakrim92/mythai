@@ -275,7 +275,7 @@
     const config = CHOICES[name];
     if (!config) { addToCart(name, price); return; }
     _choicePending = { name, price };
-    document.getElementById('choiceItemName').childNodes[1].textContent = name;
+    document.getElementById('choiceItemTitle').textContent = name;
     document.getElementById('choiceLabel').textContent = config.label;
     const optsEl = document.getElementById('choiceOptions');
     optsEl.innerHTML = '';
