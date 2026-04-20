@@ -1,3 +1,8 @@
 node_modules/
 .env
 *.log
+*.swp
+*.swo
+orders.json
+pending_items.json
+promo_used.json

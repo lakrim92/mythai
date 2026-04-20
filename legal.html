@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentions légales & CGV – My Thai Street Food Bougival</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red:   #C8390B;
+      --gold:  #F5A623;
+      --dark:  #0d0d0d;
+      --card:  #161616;
+      --muted: rgba(255,255,255,.45);
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--dark); color: #e5e7eb; line-height: 1.7; }
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    .lh {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--dark);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 64px;
+    }
+    .lh-brand { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #fff; font-weight: 700; letter-spacing: 1px; }
+    .lh-brand span { color: var(--gold); font-style: italic; }
+    .lh-back { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .lh-back:hover { color: var(--gold); text-decoration: none; }
+
+    /* ── Hero ── */
+    .l-hero {
+      padding: 110px 24px 48px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .l-hero h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #fff; margin-bottom: 10px; }
+    .l-hero p  { color: var(--muted); font-size: .88rem; }
+
+    /* ── Nav ancres ── */
+    .l-nav {
+      position: sticky; top: 64px; z-index: 50;
+      background: #111;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .l-nav-inner {
+      max-width: 800px; margin: 0 auto; padding: 0 24px;
+      display: flex; gap: 28px; overflow-x: auto;
+    }
+    .l-nav a {
+      white-space: nowrap; padding: 14px 0;
+      font-size: .8rem; font-weight: 600; color: var(--muted);
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    .l-nav a:hover { color: var(--gold); border-color: var(--gold); text-decoration: none; }
+
+    /* ── Body ── */
+    .l-body {
+      max-width: 800px; margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .82rem; color: var(--gold); font-weight: 600;
+      margin-bottom: 40px;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .l-section { margin-bottom: 56px; scroll-margin-top: 130px; }
+    .l-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem; color: #fff;
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 2px solid var(--red);
+    }
+    .l-section h3 { font-size: .95rem; font-weight: 700; color: #fff; margin: 24px 0 8px; }
+    .l-section p, .l-section li { font-size: .875rem; color: #9ca3af; line-height: 1.8; margin-bottom: 10px; }
+    .l-section ul { padding-left: 20px; }
+    .l-section strong { color: #e5e7eb; }
+
+    .l-section table { width: 100%; border-collapse: collapse; font-size: .82rem; margin: 16px 0; }
+    .l-section th { background: var(--red); color: #fff; padding: 9px 14px; text-align: left; font-weight: 600; }
+    .l-section td { padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,.07); color: #9ca3af; }
+    .l-section tr:last-child td { border-bottom: none; }
+
+    /* ── Cookie banner ── */
+    #cookie-banner {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #111; color: rgba(255,255,255,.8);
+      padding: 16px 24px; z-index: 9999;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      font-size: .82rem;
+      border-top: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 -4px 24px rgba(0,0,0,.5);
+    }
+    #cookie-banner p { margin: 0; flex: 1; min-width: 200px; color: rgba(255,255,255,.7); }
+    .cookie-actions { display: flex; gap: 10px; flex-shrink: 0; }
+    .btn-cookie-accept {
+      background: var(--red); color: #fff;
+      border: none; padding: 9px 20px; border-radius: 6px;
+      font-weight: 700; font-size: .82rem; cursor: pointer;
+    }
+    .btn-cookie-accept:hover { background: #a82d09; }
+    .btn-cookie-refuse {
+      background: transparent; color: rgba(255,255,255,.5);
+      border: 1px solid rgba(255,255,255,.15); padding: 9px 20px;
+      border-radius: 6px; font-size: .82rem; cursor: pointer;
+    }
+    .btn-cookie-refuse:hover { color: rgba(255,255,255,.8); }
+
+    @media (max-width: 600px) {
+      .l-hero h1 { font-size: 1.5rem; }
+      .lh-brand { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="lh">
+    <span class="lh-brand">My Thai <span>Street Food</span></span>
+    <a href="/" class="lh-back"><i class="fas fa-arrow-left"></i> Retour au site</a>
+  </header>
+
+  <div class="l-hero">
+    <h1>Informations légales</h1>
+    <p>Mentions légales · CGV · Politique de cookies · Données personnelles</p>
+  </div>
+
+  <nav class="l-nav">
+    <div class="l-nav-inner">
+      <a href="#mentions">Mentions légales</a>
+      <a href="#cgv">CGV</a>
+      <a href="#cookies">Cookies</a>
+      <a href="#donnees">Données personnelles</a>
+    </div>
+  </nav>
+
+  <div class="l-body">
+    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Retour au site</a>
+
+    <!-- ═══ MENTIONS LÉGALES ═══ -->
+    <section class="l-section" id="mentions">
+      <h2>Mentions légales</h2>
+
+      <h3>Éditeur du site</h3>
+      <p>
+        <strong>Raison sociale :</strong> My Thai Street Food<br>
+        <strong>Forme juridique :</strong> Entreprise individuelle<br>
+        <strong>SIRET :</strong> 988 030 797 00019<br>
+        <strong>Responsable de publication :</strong> Ahmed Abdellatif<br>
+        <strong>Adresse :</strong> 30 Avenue Jean-Moulin, 78380 Bougival<br>
+        <strong>Site web :</strong> mythai-bougival.fr
+      </p>
+
+      <h3>Hébergement & Développement</h3>
+      <p>
+        <strong>Hébergeur :</strong> AI-Autoheal<br>
+        <strong>Développeur :</strong> AI-Autoheal<br>
+        Ce site est hébergé et développé sur une infrastructure privée.
+      </p>
+
+      <h3>Propriété intellectuelle</h3>
+      <p>L'ensemble des contenus présents sur ce site (textes, images, logos, éléments graphiques) sont la propriété exclusive de My Thai Street Food ou de leurs auteurs respectifs. Toute reproduction, représentation ou diffusion, en tout ou partie, sans autorisation écrite préalable est interdite.</p>
+    </section>
+
+    <!-- ═══ CGV ═══ -->
+    <section class="l-section" id="cgv">
+      <h2>Conditions Générales de Vente</h2>
+
+      <h3>1. Objet</h3>
+      <p>Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre My Thai Street Food (ci-après « le Vendeur ») et toute personne physique passant commande via le site mythai-bougival.fr (ci-après « le Client »). Toute commande implique l'acceptation pleine et entière des présentes CGV.</p>
+
+      <h3>2. Produits</h3>
+      <p>Les produits proposés sont des denrées alimentaires préparées à la commande (plats thaïlandais, street food, desserts, boissons). Les compositions sont indiquées à titre informatif et peuvent varier selon la disponibilité des ingrédients. My Thai Street Food s'engage à informer le Client en cas de modification substantielle.</p>
+
+      <h3>3. Prix</h3>
+      <p>Les prix sont indiqués en euros TTC. My Thai Street Food se réserve le droit de modifier ses tarifs à tout moment, sans préavis. Les produits sont facturés au prix en vigueur au moment de la validation de la commande.</p>
+
+      <h3>4. Commande</h3>
+      <p>La commande est considérée comme définitive après validation du paiement en ligne. Un email de confirmation est envoyé au Client. Le minimum de commande est de <strong>20€ pour une livraison</strong> et de <strong>12€ pour un retrait sur place</strong>.</p>
+
+      <h3>5. Paiement</h3>
+      <p>Le paiement en ligne s'effectue par carte bancaire via la plateforme sécurisée Stripe (chiffrement SSL). Les données bancaires ne sont pas stockées par My Thai Street Food. Le paiement en espèces est possible uniquement au comptoir.</p>
+
+      <h3>6. Livraison</h3>
+      <ul>
+        <li>Livraison disponible dans les zones couvertes : Bougival, Le Pecq, Louveciennes, La Celle-Saint-Cloud, Croissy-sur-Seine, Chatou, Marly-le-Roi, Rueil-Malmaison, Saint-Cloud.</li>
+        <li>Livraison <strong>gratuite</strong> à Bougival (78380), Louveciennes (78430) et La Celle-Saint-Cloud (78170).</li>
+        <li>Frais de livraison : <strong>2,50€</strong> pour les autres zones couvertes.</li>
+        <li>Délai estimé : environ 30 minutes (variable selon l'affluence).</li>
+        <li>My Thai Street Food ne saurait être tenu responsable de retards liés à des conditions extérieures (trafic, météo, force majeure).</li>
+      </ul>
+
+      <h3>7. Droit de rétractation</h3>
+      <p>Conformément à l'article L.221-28 du Code de la consommation, <strong>le droit de rétractation ne s'applique pas</strong> aux denrées alimentaires périssables préparées à la demande du consommateur. Aucun remboursement ni échange ne peut être accordé sur cette base.</p>
+      <p>En cas de non-conformité avérée du produit livré (erreur de commande imputable au Vendeur), le Client peut nous contacter dans les 30 minutes suivant la livraison.</p>
+
+      <h3>8. Allergènes</h3>
+      <p>Nos produits peuvent contenir ou avoir été en contact avec des allergènes (gluten, crustacés, arachides, fruits à coque, sésame, soja, œufs, poissons, lait, etc.). Tout Client souffrant d'une allergie alimentaire est invité à nous contacter directement avant de passer commande.</p>
+
+      <h3>9. Responsabilité</h3>
+      <p>My Thai Street Food ne saurait être tenu responsable des dommages indirects résultant de l'utilisation du site ou de la commande. Le Vendeur s'engage à mettre en œuvre tous les moyens raisonnables pour assurer la disponibilité du service.</p>
+
+      <h3>10. Droit applicable</h3>
+      <p>Les présentes CGV sont soumises au droit français. En cas de litige, et après tentative de résolution amiable, les tribunaux compétents de Versailles seront saisis.</p>
+    </section>
+
+    <!-- ═══ COOKIES ═══ -->
+    <section class="l-section" id="cookies">
+      <h2>Politique de cookies</h2>
+
+      <h3>Qu'est-ce qu'un cookie ?</h3>
+      <p>Un cookie est un petit fichier texte déposé sur votre appareil lors de la visite d'un site web. Il permet de mémoriser vos préférences et d'améliorer votre expérience de navigation.</p>
+
+      <h3>Cookies utilisés sur ce site</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Cookie</th>
+            <th>Type</th>
+            <th>Finalité</th>
+            <th>Durée</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>cookie_consent</td>
+            <td>Fonctionnel</td>
+            <td>Mémorisation de votre choix de consentement</td>
+            <td>12 mois</td>
+          </tr>
+          <tr>
+            <td>mythai_cart</td>
+            <td>Fonctionnel</td>
+            <td>Sauvegarde de votre panier en cours</td>
+            <td>Session</td>
+          </tr>
+          <tr>
+            <td>Stripe (_stripe_*)</td>
+            <td>Nécessaire</td>
+            <td>Sécurisation du paiement en ligne</td>
+            <td>Session</td>
+          </tr>
+          <tr>
+            <td>Google Fonts</td>
+            <td>Technique</td>
+            <td>Chargement des polices d'écriture</td>
+            <td>1 an</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Ce site n'utilise pas</h3>
+      <ul>
+        <li>Cookies publicitaires ou de ciblage</li>
+        <li>Outils de tracking comportemental (Google Analytics, Facebook Pixel, etc.)</li>
+        <li>Cookies de profilage</li>
+      </ul>
+
+      <h3>Gérer vos préférences</h3>
+      <p>Vous pouvez accepter ou refuser les cookies non essentiels via la bannière affichée à votre première visite. Vous pouvez également modifier vos préférences à tout moment via les paramètres de votre navigateur :</p>
+      <ul>
+        <li><strong>Chrome :</strong> Paramètres → Confidentialité → Cookies</li>
+        <li><strong>Firefox :</strong> Paramètres → Vie privée → Cookies</li>
+        <li><strong>Safari :</strong> Préférences → Confidentialité → Cookies</li>
+      </ul>
+      <p>Le refus des cookies techniques peut altérer le fonctionnement du paiement en ligne.</p>
+    </section>
+
+    <!-- ═══ DONNÉES PERSONNELLES ═══ -->
+    <section class="l-section" id="donnees">
+      <h2>Données personnelles (RGPD)</h2>
+
+      <h3>Responsable du traitement</h3>
+      <p>My Thai Street Food — 30 Av. Jean-Moulin, 78380 Bougival</p>
+
+      <h3>Données collectées</h3>
+      <p>Lors d'une commande en ligne, nous collectons : prénom, nom, adresse email, numéro de téléphone, adresse de livraison. Ces données sont utilisées exclusivement pour le traitement et la livraison de votre commande.</p>
+
+      <h3>Durée de conservation</h3>
+      <p>Les données de commande sont conservées 3 ans à compter de la date de commande, conformément aux obligations légales comptables.</p>
+
+      <h3>Vos droits</h3>
+      <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données. Pour exercer ces droits, contactez-nous au 30 Av. Jean-Moulin, 78380 Bougival.</p>
+      <p>En cas de litige non résolu, vous pouvez introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener">CNIL</a>.</p>
+    </section>
+
+    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Retour au site</a>
+  </div>
+
+  <!-- ── Cookie banner ── -->
+  <div id="cookie-banner" style="display:none;">
+    <p>
+      Ce site utilise des cookies nécessaires à son fonctionnement (paiement sécurisé, panier).
+      Aucun cookie publicitaire n'est utilisé.
+      <a href="/legal.html#cookies">En savoir plus</a>
+    </p>
+    <div class="cookie-actions">
+      <button class="btn-cookie-refuse" onclick="setCookieConsent('refused')">Refuser</button>
+      <button class="btn-cookie-accept" onclick="setCookieConsent('accepted')">Accepter</button>
+    </div>
+  </div>
+
+  <script>
+    function setCookieConsent(val) {
+      localStorage.setItem('cookie_consent', val);
+      document.getElementById('cookie-banner').style.display = 'none';
+    }
+    if (!localStorage.getItem('cookie_consent')) {
+      document.getElementById('cookie-banner').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

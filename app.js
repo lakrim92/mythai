@@ -4,6 +4,7 @@
   // ── Constants ──────────────────────────────────────────
   const DELIVERY_ZONES = new Set(['78380','78230','78430','78170','78290','78400','78160','92500','92210']);
   const DELIVERY_FEE = 2.50;
+  const FREE_DELIVERY_ZONES = new Set(['78380','78170','78430']); // Bougival, La Celle-Saint-Cloud, Louveciennes
   const MIN_EMPORTER = 12;
   const MIN_LIVRAISON = 20;
 
@@ -117,8 +118,9 @@
     const emptyEl = document.getElementById('cartEmpty');
     const headCount = document.getElementById('cartHeadCount');
     const subtotalEl = document.getElementById('cartSubtotal');
-    const warnEl = document.getElementById('cartMinWarn');
-    const btnCo = document.getElementById('btnCheckout');
+    const warnEl  = document.getElementById('cartMinWarn');
+    const infoEl  = document.getElementById('cartMinInfo');
+    const btnCo   = document.getElementById('btnCheckout');
 
     const count = cartCount();
     const total = cartTotal();
@@ -153,9 +155,11 @@
     itemsEl.innerHTML = html;
     emptyEl.style.display = 'none';
 
-    // Min warn
+    // Min info + warn
+    const modeLabel = mode === 'livraison' ? 'livraison' : 'à emporter';
+    infoEl.textContent = `Minimum ${modeLabel} : ${min} €`;
     if (total < min) {
-      warnEl.textContent = `Minimum de commande : ${min}€ (encore ${fmt(min - total)})`;
+      warnEl.textContent = `Encore ${fmt(min - total)} pour atteindre le minimum`;
       warnEl.style.display = 'block';
       btnCo.disabled = true;
       document.getElementById('stepBtn2').disabled = true;
@@ -171,7 +175,8 @@
   function updateCheckoutTotals() {
     const sub = cartTotal();
     const isLiv = mode === 'livraison';
-    const delivFee = isLiv ? DELIVERY_FEE : 0;
+    const zip = getVal('fZip');
+    const delivFee = isLiv ? (FREE_DELIVERY_ZONES.has(zip) ? 0 : DELIVERY_FEE) : 0;
     let total = sub + delivFee;
     let promoDiscount = 0;
     if (promoEligible) { promoDiscount = Math.round(sub * 0.10 * 100) / 100; total -= promoDiscount; }
@@ -179,6 +184,7 @@
     document.getElementById('co-subtotal').textContent = fmt(sub);
     const delivRow = document.getElementById('co-deliv-row');
     delivRow.style.display = isLiv ? 'flex' : 'none';
+    document.getElementById('co-deliv-val').textContent = delivFee === 0 ? 'Gratuit' : fmt(delivFee);
     const promoRow = document.getElementById('co-promo-row');
     promoRow.style.display = promoEligible ? 'flex' : 'none';
     if (promoEligible) document.getElementById('co-promo-val').textContent = `-${fmt(promoDiscount)}`;
@@ -264,6 +270,7 @@
   // ── Mode toggle ────────────────────────────────────────
   document.getElementById('modeEmporter').addEventListener('click', () => setMode('emporter'));
   document.getElementById('modeLivraison').addEventListener('click', () => setMode('livraison'));
+  document.getElementById('fZip').addEventListener('input', () => updateCheckoutTotals());
   function setMode(m) {
     mode = m;
     document.getElementById('modeEmporter').classList.toggle('selected', m === 'emporter');
@@ -322,6 +329,10 @@
       if (!zip || !DELIVERY_ZONES.has(zip)) ok = !setErr('fZip','errZip',true) && ok;
       if (!getVal('fCity')) ok = !setErr('fCity','errCity',true) && ok;
     }
+    const cgv = document.getElementById('cgvCheck');
+    const errCgv = document.getElementById('errCgv');
+    if (!cgv.checked) { errCgv.classList.add('show'); ok = false; }
+    else { errCgv.classList.remove('show'); }
     return ok;
   }
 
@@ -392,8 +403,44 @@
     }
   });
 
+  // ── Google Reviews ─────────────────────────────────────
+  async function loadReviews() {
+    try {
+      const reviews = await fetch('/api/reviews').then(r => r.json());
+      if (!Array.isArray(reviews) || reviews.length === 0) return;
+
+      const grid = document.getElementById('avisGrid');
+      grid.innerHTML = reviews.map(r => {
+        const stars = Array.from({ length: 5 }, (_, i) =>
+          `<i class="fas fa-star${i < r.rating ? '' : '-half-alt'}" style="${i >= r.rating ? 'opacity:.3' : ''}"></i>`
+        ).join('');
+        const avatar = r.photo
+          ? `<img class="avis-avatar" src="${r.photo}" alt="${r.author}" loading="lazy">`
+          : `<div class="avis-avatar-placeholder">${r.author.charAt(0).toUpperCase()}</div>`;
+        const text = r.text
+          ? `<p class="avis-text">${r.text.length > 200 ? r.text.slice(0, 197) + '…' : r.text}</p>`
+          : '';
+        return `
+          <div class="avis-card">
+            <div class="avis-top">
+              ${avatar}
+              <div class="avis-meta">
+                <div class="avis-author">${r.author}</div>
+                <div class="avis-time">${r.time}</div>
+              </div>
+            </div>
+            <div class="avis-stars">${stars}</div>
+            ${text}
+          </div>`;
+      }).join('');
+
+      document.getElementById('avis').style.display = 'block';
+    } catch { /* API non configurée ou indisponible */ }
+  }
+
   // ── Init ───────────────────────────────────────────────
   updateBadges();
   renderCart();
+  loadReviews();
 
 })();

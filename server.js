@@ -9,7 +9,6 @@ const path       = require('path');
 const fs         = require('fs');
 const crypto     = require('crypto');
 const https      = require('https');
-const net        = require('net');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 
@@ -52,6 +51,7 @@ const DELIVERY_ZONES = new Set([
   '92210', // Saint-Cloud
 ]);
 const DELIVERY_FEE = 2.50; // €
+const FREE_DELIVERY_ZONES = new Set(['78380','78170','78430']); // Bougival, La Celle-Saint-Cloud, Louveciennes
 
 // ── Mutex (atomic file read-modify-write) ─────────────────
 class Mutex {
@@ -88,6 +88,7 @@ setInterval(() => { const now = Date.now(); _rlStore.forEach((v, k) => { if (now
 
 const rlAuth     = rateLimit(10, 60_000);
 const rlCheckout = rateLimit(30, 60_000);
+const rlReceipt  = rateLimit(20, 60_000);
 
 // ── Sessions ──────────────────────────────────────────────
 const _sessions = new Map();
@@ -182,10 +183,7 @@ function prTxt(s) {
   return Buffer.from(out);
 }
 function prLine(s) { return Buffer.concat([prTxt(s), Buffer.from([0x0A])]); }
-function printOrder(order) {
-  const host = process.env.PRINTER_HOST;
-  const port = parseInt(process.env.PRINTER_PORT||'9100');
-  if (!host) return;
+function buildTicket(order) {
   const d = order.delivery||{};
   const now = new Date(order.createdAt);
   const orderNum = String(order.orderNumber).slice(-6);
@@ -223,13 +221,9 @@ function printOrder(order) {
   chunks.push(PR.BOLD_ON, prLine(`TOTAL  : ${(order.total||0).toFixed(2)} EUR`), PR.BOLD_OFF);
   if (order.promoApplied) chunks.push(prLine('Promo -10% appliquee !'));
   if (d.instructions) chunks.push(prLine(''), prLine(`Note: ${d.instructions}`));
-  if (isLiv) chunks.push(prLine(''), PR.BOLD_ON, prLine('+2.50 EUR LIVRAISON'), PR.BOLD_OFF);
+  if (isLiv && !FREE_DELIVERY_ZONES.has((d.zip||'').trim())) chunks.push(prLine(''), PR.BOLD_ON, prLine('+2.50 EUR LIVRAISON'), PR.BOLD_OFF);
   chunks.push(PR.FEED, PR.CUT);
-  const socket = new net.Socket();
-  socket.setTimeout(5000);
-  socket.connect(port, host, () => { socket.write(Buffer.concat(chunks), () => socket.destroy()); console.log(`🖨️  Ticket → ${host}:${port} #${orderNum}`); });
-  socket.on('error', err => console.error(`Printer: ${err.message}`));
-  socket.on('timeout', () => { socket.destroy(); });
+  return Buffer.concat(chunks);
 }
 
 // ── SSE (tablette) ────────────────────────────────────────
@@ -338,12 +332,15 @@ async function processOrder(session) {
           <p>Votre commande est bien enregistrée et en cours de préparation.</p>
           <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:.92rem">${itemsHtml}
             <tr><td colspan="2" style="padding:4px 0"><hr style="border:none;border-top:1px solid #eee"/></td></tr>
-            ${isLiv ? `<tr><td style="color:#666">Frais de livraison</td><td align="right">2.50€</td></tr>` : ''}
+            ${isLiv && !FREE_DELIVERY_ZONES.has((delivery.zip||'').trim()) ? `<tr><td style="color:#666">Frais de livraison</td><td align="right">2.50€</td></tr>` : ''}
             ${promoApplied ? `<tr><td style="color:#16a34a;font-size:.88rem">🎉 Réduction -10%</td><td align="right" style="color:#16a34a;font-size:.88rem">-${discount.toFixed(2)}€</td></tr>` : ''}
             <tr><td><strong>Total payé</strong></td><td align="right"><strong>${order.total.toFixed(2)}€</strong></td></tr>
           </table>
           <p><strong>Mode :</strong> ${modeLabel}${isLiv && addrLine ? ` — ${escHtml(addrLine)}` : ''}</p>
           <p style="color:#666;font-size:.88rem">⏱ Temps estimé : ~30 minutes</p>
+          <div style="text-align:center;margin:24px 0">
+            <a href="${process.env.SITE_URL}/api/receipt/${order.id}" style="display:inline-block;background:#C8390B;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:.9rem;font-weight:600">📄 Télécharger mon reçu</a>
+          </div>
           <hr style="border:none;border-top:1px solid #eee;margin:20px 0"/>
           <p style="color:#999;font-size:.8rem;margin:0">My Thai Street Food — 30 Av. Jean-Moulin, 78380 Bougival</p>
         </div>
@@ -371,7 +368,7 @@ async function processOrder(session) {
           <h3 style="margin-bottom:8px">Articles</h3>
           <table style="width:100%;border-collapse:collapse;font-size:.9rem">${itemsHtml}
             <tr><td colspan="2"><hr style="border:none;border-top:1px solid #eee"/></td></tr>
-            ${isLiv ? `<tr><td>Livraison</td><td align="right">2.50€</td></tr>` : ''}
+            ${isLiv && !FREE_DELIVERY_ZONES.has((delivery.zip||'').trim()) ? `<tr><td>Livraison</td><td align="right">2.50€</td></tr>` : ''}
             ${promoApplied ? `<tr><td style="color:#16a34a">🎉 Promo -10%</td><td align="right" style="color:#16a34a">-${discount.toFixed(2)}€</td></tr>` : ''}
             <tr><td><strong>Total</strong></td><td align="right"><strong>${order.total.toFixed(2)}€</strong></td></tr>
           </table>
@@ -380,7 +377,6 @@ async function processOrder(session) {
       </div>`);
   }
 
-  printOrder(order);
   console.log(`✅ Commande #${order.orderNumber} — ${order.total}€ (${modeLabel})`);
 }
 
@@ -423,7 +419,7 @@ function isRestaurantOpen() {
   const now = new Date();
   const day = now.getDay();
   const hm  = now.getHours()*60 + now.getMinutes();
-  if (day === 1) return false; // lundi fermé
+  if (day === 0) return false; // dimanche fermé
   return (hm >= 11*60 && hm < 15*60) ||
          (hm >= 18*60 && hm < 23*60);
 }
@@ -487,13 +483,15 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
       quantity: parseInt(item.qty||1,10),
     }));
 
-    // Frais de livraison
-    if (isLiv) {
+    // Frais de livraison (gratuit pour Bougival, La Celle-Saint-Cloud, Louveciennes)
+    const delivZip = (delivery?.zip||'').trim();
+    const delivFee = isLiv ? (FREE_DELIVERY_ZONES.has(delivZip) ? 0 : DELIVERY_FEE) : 0;
+    if (delivFee > 0) {
       line_items.push({
         price_data: {
           currency: 'eur',
           product_data: { name: 'Frais de livraison' },
-          unit_amount: Math.round(DELIVERY_FEE*100),
+          unit_amount: Math.round(delivFee*100),
         },
         quantity: 1,
       });
@@ -548,9 +546,9 @@ app.get('/api/orders', tabletteAuth, (req, res) => res.json(loadOrders()));
 app.post('/api/orders/:id/print', tabletteAuth, (req, res) => {
   const order = loadOrders().find(o => o.id===req.params.id);
   if (!order) return res.status(404).json({ error: 'Commande introuvable' });
-  if (!process.env.PRINTER_HOST) return res.status(503).json({ error: 'Imprimante non configurée' });
-  printOrder(order);
-  res.json({ ok: true });
+  const bytes = buildTicket(order);
+  res.setHeader('Content-Type', 'application/octet-stream');
+  res.send(bytes);
 });
 
 app.patch('/api/orders/:id/status', tabletteAuth, async (req, res) => {
@@ -759,57 +757,290 @@ app.delete('/api/admin/orders/:id', adminAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// ── Test email (temporaire) ───────────────────────────────
-app.get('/api/test-email', async (req, res) => {
-  const to = req.query.to || process.env.ADMIN_EMAIL;
-  if (!to) return res.status(400).json({ error: 'Paramètre ?to= requis' });
-  const fakeOrder = {
-    orderNumber: Date.now(), total: 18.50, promoApplied: false, discount: 0,
-    customerEmail: to,
-    items: [{ name: 'Pad Thai Crevettes', qty: 1, price: 13.50 }, { name: 'Spring Rolls', qty: 2, price: 5.00 }],
-    delivery: { mode: 'emporter', firstname: 'Test', lastname: 'Client', phone: '06 00 00 00 00' },
-    createdAt: new Date().toISOString(),
-  };
-  const itemsHtml = fakeOrder.items.map(i =>
-    `<tr><td style="padding:5px 0">${i.qty}× <strong>${i.name}</strong></td><td align="right">${i.price.toFixed(2)}€</td></tr>`
-  ).join('');
-  // Email client
-  await sendEmail(to, '🍜 [TEST] Votre commande My Thai est confirmée !', `
-    ${emailBrandBlock()}
-    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-      <div style="background:#C8390B;padding:24px 32px"><h1 style="color:#fff;margin:0;font-size:1.5rem">🍜 Commande confirmée !</h1></div>
-      <div style="padding:28px 32px">
-        <p style="margin-top:0">Bonjour <strong>Test</strong>,</p>
-        <p>Votre commande est bien enregistrée et en cours de préparation.</p>
-        <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:.92rem">${itemsHtml}
-          <tr><td colspan="2"><hr style="border:none;border-top:1px solid #eee"/></td></tr>
-          <tr><td><strong>Total payé</strong></td><td align="right"><strong>18.50€</strong></td></tr>
-        </table>
-        <p><strong>Mode :</strong> À emporter</p>
-        <p style="color:#666;font-size:.88rem">⏱ Temps estimé : ~30 minutes</p>
-        <hr style="border:none;border-top:1px solid #eee;margin:20px 0"/>
-        <p style="color:#999;font-size:.8rem;margin:0">My Thai Street Food — 30 Av. Jean-Moulin, 78380 Bougival</p>
-      </div>
-    </div>`);
-  // Email admin
-  await sendEmail(to, '🔔 [TEST] Nouvelle commande — Test Client — 18.50€', `
-    ${emailBrandBlock()}
-    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
-      <div style="background:#C8390B;padding:20px 28px"><h1 style="color:#fff;margin:0;font-size:1.3rem">🔔 Nouvelle commande</h1></div>
-      <div style="padding:24px 28px">
-        <table style="width:100%;font-size:.9rem;margin-bottom:16px">
-          <tr><td style="color:#666;width:130px">Client</td><td><strong>Test Client</strong></td></tr>
-          <tr><td style="color:#666">Téléphone</td><td>06 00 00 00 00</td></tr>
-          <tr><td style="color:#666">Mode</td><td><strong>À emporter</strong></td></tr>
-        </table>
-        <h3 style="margin-bottom:8px">Articles</h3>
-        <table style="width:100%;border-collapse:collapse;font-size:.9rem">${itemsHtml}
-          <tr><td colspan="2"><hr style="border:none;border-top:1px solid #eee"/></td></tr>
-          <tr><td><strong>Total</strong></td><td align="right"><strong>18.50€</strong></td></tr>
-        </table>
-      </div>
-    </div>`);
-  res.json({ ok: true, sent_to: to });
+// ── Reçu fiscal client ────────────────────────────────────
+function generateReceiptHtml(order) {
+  const d          = new Date(order.createdAt);
+  const dateStr    = d.toLocaleDateString('fr-FR');
+  const timeStr    = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const ymd        = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const seq        = String(order.orderNumber).slice(-6);
+  const receiptNum = `MTHAI-${ymd}-${seq}`;
+  const delivery   = order.delivery || {};
+  const clientName = [delivery.firstname, delivery.lastname].filter(Boolean).join(' ');
+  const isLiv      = delivery.mode === 'livraison';
+  const addrLine   = [delivery.address, delivery.zip, delivery.city].filter(Boolean).join(' ');
+  const modeLabel  = isLiv ? 'Livraison à domicile' : 'Retrait sur place';
+
+  const tvaGroups = {};
+  const items     = (order.items || []).filter(i => i.name !== 'Frais de livraison');
+  const subtotalBC = items.reduce((s, i) => s + (i.price || 0), 0);
+
+  const itemsRows = items.map(item => {
+    const qty      = item.qty || 1;
+    const priceTTC = typeof item.price === 'number' ? item.price : 0;
+    const rate     = item.type === 'boisson' ? 5.5 : 10;
+    const prixUnit = priceTTC / qty;
+    const ht       = priceTTC / (1 + rate / 100);
+    const tva      = priceTTC - ht;
+    if (!tvaGroups[rate]) tvaGroups[rate] = { baseHT: 0, montantTVA: 0, totalTTC: 0 };
+    tvaGroups[rate].baseHT     += ht;
+    tvaGroups[rate].montantTVA += tva;
+    tvaGroups[rate].totalTTC   += priceTTC;
+    return `<tr>
+      <td style="padding:8px 10px">${escHtml(item.name)}</td>
+      <td style="padding:8px 10px;text-align:center">${qty}</td>
+      <td style="padding:8px 10px;text-align:right">${prixUnit.toFixed(2)} €</td>
+      <td style="padding:8px 10px;text-align:center">${rate}%</td>
+      <td style="padding:8px 10px;text-align:right">${priceTTC.toFixed(2)} €</td>
+    </tr>`;
+  }).join('');
+
+  if (order.promoApplied && order.discount > 0 && subtotalBC > 0) {
+    const ratio = order.total / subtotalBC;
+    Object.values(tvaGroups).forEach(g => {
+      g.baseHT     *= ratio;
+      g.montantTVA *= ratio;
+      g.totalTTC   *= ratio;
+    });
+  }
+
+  const delivFee = isLiv && !FREE_DELIVERY_ZONES.has((delivery.zip||'').trim()) ? 2.50 : 0;
+  const totalHT  = Object.values(tvaGroups).reduce((s, g) => s + g.baseHT, 0) + (delivFee / 1.10);
+  const totalTVA = Object.values(tvaGroups).reduce((s, g) => s + g.montantTVA, 0) + (delivFee - delivFee / 1.10);
+
+  const tvaRecapRows = Object.entries(tvaGroups)
+    .sort(([a], [b]) => Number(b) - Number(a))
+    .map(([rate, g]) => `<tr>
+      <td style="padding:5px 8px;font-size:.83rem">${rate}%</td>
+      <td style="padding:5px 8px;text-align:right;font-size:.83rem">${g.baseHT.toFixed(2)} €</td>
+      <td style="padding:5px 8px;text-align:right;font-size:.83rem">${g.montantTVA.toFixed(2)} €</td>
+      <td style="padding:5px 8px;text-align:right;font-size:.83rem">${g.totalTTC.toFixed(2)} €</td>
+    </tr>`).join('');
+
+  const promoRow = order.promoApplied && order.discount > 0
+    ? `<tr><td style="color:#16a34a;padding:5px 8px">Réduction 1ère commande (-10%)</td><td style="text-align:right;color:#16a34a;padding:5px 8px">-${order.discount.toFixed(2)} €</td></tr>
+       <tr><td style="padding:5px 8px;color:#555">Sous-total avant réduction</td><td style="text-align:right;padding:5px 8px">${subtotalBC.toFixed(2)} €</td></tr>`
+    : '';
+
+  const delivRow = delivFee > 0
+    ? `<tr><td style="padding:5px 8px;color:#555">Frais de livraison</td><td style="text-align:right;padding:5px 8px">${delivFee.toFixed(2)} €</td></tr>`
+    : '';
+
+  const clientBox = (clientName || isLiv) ? `
+    <div class="info-box">
+      <p class="section-title">Client</p>
+      ${clientName ? `<p><strong>${escHtml(clientName)}</strong></p>` : ''}
+      ${order.customerEmail ? `<p>${escHtml(order.customerEmail)}</p>` : ''}
+      ${isLiv && addrLine ? `<p>${escHtml(addrLine)}</p>` : ''}
+    </div>` : '';
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reçu ${receiptNum} — My Thai Street Food</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;max-width:860px;margin:0 auto;padding:24px 16px;background:#f5f0ee;color:#1a1a1a}
+  .receipt{background:#fff;border-radius:12px;padding:36px 32px;box-shadow:0 2px 18px rgba(0,0,0,.09)}
+  .btn-print{display:inline-flex;align-items:center;gap:8px;background:#C8390B;color:#fff;border:none;padding:11px 22px;border-radius:8px;font-size:.93rem;cursor:pointer;margin-bottom:22px;text-decoration:none;font-family:Arial,sans-serif}
+  .btn-print:hover{background:#a82d09}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;padding-bottom:22px;border-bottom:3px solid #C8390B;margin-bottom:26px}
+  .brand-name{font-size:1.9rem;font-weight:900;letter-spacing:2px;line-height:1}
+  .brand-name span{color:#C8390B}
+  .brand-sub{font-size:.72rem;font-weight:600;letter-spacing:6px;text-transform:uppercase;color:#F5A623;display:block;margin-top:3px}
+  .company p{margin:2px 0;font-size:.81rem;color:#555}
+  .receipt-meta{text-align:right;min-width:0;flex-shrink:0}
+  .receipt-meta h2{font-size:.9rem;font-weight:700;color:#1a1a1a;margin:0 0 8px;text-transform:uppercase;letter-spacing:1px}
+  .receipt-meta p{margin:3px 0;font-size:.83rem;color:#444}
+  .receipt-meta .ref{font-size:.68rem;color:#bbb;font-family:monospace;word-break:break-all;max-width:200px;display:inline-block}
+  .section-title{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin:0 0 8px}
+  .info-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+  .info-box{flex:1;min-width:180px;background:#fdf8f6;border:1px solid #f0ddd6;border-radius:8px;padding:14px 16px;font-size:.86rem}
+  .info-box p{margin:3px 0}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:0}
+  table.items{width:100%;border-collapse:collapse;font-size:.86rem;min-width:480px}
+  table.items thead th{background:#C8390B;color:#fff;padding:10px 8px;text-align:left;font-size:.79rem;font-weight:600;white-space:nowrap}
+  table.items thead th.r{text-align:right} table.items thead th.c{text-align:center}
+  table.items tbody tr:nth-child(even){background:#fdf8f6}
+  table.items tbody td{padding:8px;border-bottom:1px solid #eee;vertical-align:top}
+  .totals-wrap{display:flex;justify-content:flex-end;margin-top:18px}
+  .totals-table{width:100%;max-width:320px;border-collapse:collapse;font-size:.87rem}
+  .totals-table td{padding:5px 8px}
+  .totals-table .total-row td{font-weight:700;font-size:1rem;padding-top:10px;border-top:2px solid #C8390B}
+  .tva-wrap{margin-top:26px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tva-table{width:100%;border-collapse:collapse;font-size:.83rem;min-width:320px}
+  .tva-table th{background:#f0f0f0;padding:7px 8px;text-align:left;color:#555;font-weight:600;font-size:.79rem;white-space:nowrap}
+  .tva-table th.r{text-align:right}
+  .tva-table td{padding:5px 8px;border-bottom:1px solid #eee}
+  .tva-table .total-row td{font-weight:700;background:#f8f8f8}
+  .footer{margin-top:30px;padding-top:18px;border-top:1px solid #eee;font-size:.74rem;color:#aaa;line-height:1.7}
+  @media(max-width:600px){
+    .receipt{padding:20px 14px}
+    .header{flex-direction:column}
+    .receipt-meta{text-align:left}
+    .receipt-meta .ref{max-width:100%}
+  }
+  @media print{
+    body{background:#fff;padding:0}
+    .receipt{box-shadow:none;border-radius:0;padding:16px}
+    .btn-print{display:none!important}
+  }
+</style>
+</head>
+<body>
+<button class="btn-print" id="btn-print">🖨️ Imprimer / Télécharger en PDF</button>
+<div class="receipt">
+  <div class="header">
+    <div class="company">
+      <div class="brand-name"><span>MY THAI</span><br><span class="brand-sub">Street Food</span></div>
+      <p style="margin-top:8px">Restaurant thaïlandais</p>
+      <p>30 Av. Jean-Moulin — 78380 Bougival</p>
+      <p style="margin-top:7px">SIRET : 988 030 797 00019</p>
+      <p>Code APE : 56.10C — Restauration rapide</p>
+      <p>N° TVA intracommunautaire : FR62 988 030 797</p>
+    </div>
+    <div class="receipt-meta">
+      <h2>Reçu de paiement</h2>
+      <p><strong>N° ${receiptNum}</strong></p>
+      <p>Date : ${dateStr} à ${timeStr}</p>
+      <p>Mode : ${modeLabel}</p>
+      <p>Paiement : Carte bancaire (Stripe)</p>
+      <p class="ref">Réf. ${escHtml(order.id)}</p>
+    </div>
+  </div>
+
+  <div class="info-row">
+    <div class="info-box">
+      <p class="section-title">Vendeur</p>
+      <p><strong>MY THAI STREET FOOD</strong></p>
+      <p>30 Av. Jean-Moulin, 78380 Bougival</p>
+      <p>contact@mythai-bougival.fr</p>
+    </div>
+    ${clientBox}
+  </div>
+
+  <div class="table-scroll">
+  <table class="items">
+    <thead>
+      <tr>
+        <th>Désignation</th>
+        <th class="c">Qté</th>
+        <th class="r">PU TTC</th>
+        <th class="c">TVA</th>
+        <th class="r">Total TTC</th>
+      </tr>
+    </thead>
+    <tbody>${itemsRows}</tbody>
+  </table>
+  </div>
+
+  <div class="totals-wrap">
+    <table class="totals-table">
+      ${promoRow}
+      ${delivRow}
+      <tr><td style="color:#555">Total HT</td><td style="text-align:right">${totalHT.toFixed(2)} €</td></tr>
+      <tr><td style="color:#555">Total TVA</td><td style="text-align:right">${totalTVA.toFixed(2)} €</td></tr>
+      <tr class="total-row"><td>Total TTC</td><td style="text-align:right">${order.total.toFixed(2)} €</td></tr>
+    </table>
+  </div>
+
+  <div class="tva-wrap">
+    <p class="section-title">Récapitulatif TVA</p>
+    <table class="tva-table">
+      <thead>
+        <tr>
+          <th>Taux TVA</th>
+          <th class="r">Base HT</th>
+          <th class="r">Montant TVA</th>
+          <th class="r">Total TTC</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tvaRecapRows}
+        <tr class="total-row">
+          <td>Total</td>
+          <td style="text-align:right">${totalHT.toFixed(2)} €</td>
+          <td style="text-align:right">${totalTVA.toFixed(2)} €</td>
+          <td style="text-align:right">${order.total.toFixed(2)} €</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>TVA acquittée sur les débits · Restauration rapide (Code APE 56.10C)</p>
+    <p>Taux appliqués : 10% sur plats cuisinés à emporter/livrer · 5,5% sur boissons non alcoolisées</p>
+    <p>Ce document tient lieu de facture simplifiée conformément à l'article 242 nonies A de l'annexe II du CGI.</p>
+    <p>MY THAI STREET FOOD — 30 Av. Jean-Moulin, 78380 Bougival — SIRET 988 030 797 00019 — N° TVA FR62 988 030 797</p>
+  </div>
+</div>
+<script>document.getElementById('btn-print').addEventListener('click',function(){window.print();});</script>
+</body>
+</html>`;
+}
+
+app.get('/api/receipt/:sessionId', rlReceipt, (req, res) => {
+  const { sessionId } = req.params;
+  if (!sessionId || !/^cs_(test|live)_/.test(sessionId)) {
+    return res.status(400).send('Identifiant invalide');
+  }
+  const order = loadOrders().find(o => o.id === sessionId);
+  if (!order) return res.status(404).send('Reçu introuvable');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' https: data:;"
+  );
+  res.send(generateReceiptHtml(order));
+});
+
+// ── Google Reviews ───────────────────────────────────────
+let _reviewsCache = null;
+let _reviewsCacheAt = 0;
+const REVIEWS_TTL = 6 * 60 * 60 * 1000; // 6h
+
+async function fetchGoogleReviews() {
+  const key = process.env.GOOGLE_PLACES_API_KEY;
+  const placeId = process.env.GOOGLE_PLACE_ID;
+  if (!key || !placeId) return [];
+
+  return new Promise((resolve) => {
+    const url = `/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&language=fr&key=${key}`;
+    const req = https.get({ hostname: 'maps.googleapis.com', path: url }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          const reviews = (json.result?.reviews || [])
+            .filter(r => r.rating >= 4)
+            .sort((a, b) => b.time - a.time)
+            .slice(0, 3)
+            .map(r => ({
+              author: r.author_name,
+              rating: r.rating,
+              text: r.text,
+              time: r.relative_time_description,
+              photo: r.profile_photo_url || null,
+            }));
+          resolve(reviews);
+        } catch { resolve([]); }
+      });
+    });
+    req.on('error', () => resolve([]));
+  });
+}
+
+app.get('/api/reviews', async (req, res) => {
+  const now = Date.now();
+  if (_reviewsCache && now - _reviewsCacheAt < REVIEWS_TTL) {
+    return res.json(_reviewsCache);
+  }
+  const reviews = await fetchGoogleReviews();
+  _reviewsCache = reviews;
+  _reviewsCacheAt = now;
+  res.json(reviews);
 });
 
 // ── Static files ──────────────────────────────────────────
@@ -819,7 +1050,7 @@ app.use(express.static(path.join(__dirname), {
   etag: true,
 }));
 
-app.get('/{*path}', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
