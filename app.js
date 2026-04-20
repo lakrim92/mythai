@@ -115,6 +115,7 @@
 
   function updateBadges() {
     const count = cartCount();
+    console.log('[cart] count=', count, 'cart=', JSON.stringify(cart));
     const show = count > 0;
     // Nav badge
     const nb = document.getElementById('navCartBadge');
