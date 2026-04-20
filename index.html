@@ -709,6 +709,23 @@
     /* ───────────────────────────────────────────
        KEYFRAMES
     ─────────────────────────────────────────── */
+    /* ── Choice modal ── */
+    .choice-overlay { position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:300; display:none; }
+    .choice-overlay.open { display:block; }
+    .choice-modal { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1a1208; border:1px solid var(--border-2); border-radius:16px; padding:28px 24px; z-index:301; width:min(360px,92vw); display:none; flex-direction:column; gap:18px; box-shadow:0 24px 60px rgba(0,0,0,.6); }
+    .choice-modal.open { display:flex; }
+    .choice-modal h3 { font-family:'Playfair Display',serif; font-size:1.1rem; color:#fff; margin:0; }
+    .choice-modal h3 small { display:block; font-family:inherit; font-size:.72rem; color:var(--gold); letter-spacing:.12em; text-transform:uppercase; margin-bottom:4px; }
+    .choice-label { font-size:.78rem; color:var(--muted); font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+    .choice-options { display:flex; flex-wrap:wrap; gap:9px; }
+    .choice-opt { border:1px solid var(--border); background:transparent; color:#ccc; padding:9px 18px; border-radius:10px; cursor:pointer; font-size:.88rem; transition:all .2s; }
+    .choice-opt:hover { border-color:var(--gold); color:var(--gold); }
+    .choice-opt.selected { border-color:var(--gold); background:rgba(245,166,35,.15); color:var(--gold); font-weight:600; }
+    .choice-actions { display:flex; gap:10px; justify-content:flex-end; }
+    .choice-cancel { background:transparent; border:1px solid var(--border); color:var(--muted); padding:9px 18px; border-radius:10px; cursor:pointer; font-size:.88rem; }
+    .choice-confirm { background:var(--red); border:none; color:#fff; padding:9px 20px; border-radius:10px; cursor:pointer; font-size:.88rem; font-weight:600; }
+    .ci-row-notes { font-size:.74rem; color:var(--gold); margin-top:2px; }
+
     @keyframes fadeDown { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:translateY(0)} }
     @keyframes fadeUp   { from{opacity:0;transform:translateY(26px)}  to{opacity:1;transform:translateY(0)} }
     @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
@@ -984,6 +1001,17 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- ── Choice modal ── -->
+<div class="choice-overlay" id="choiceOverlay"></div>
+<div class="choice-modal" id="choiceModal" role="dialog" aria-modal="true">
+  <h3 id="choiceItemName"><small id="choiceLabel"></small></h3>
+  <div class="choice-options" id="choiceOptions"></div>
+  <div class="choice-actions">
+    <button class="choice-cancel" id="choiceCancel">Annuler</button>
+    <button class="choice-confirm" id="choiceConfirm">Ajouter au panier</button>
+  </div>
+</div>
 
 <!-- Floating cart (mobile) -->
 <button class="fab-cart" id="fabCart" aria-label="Ouvrir le panier">

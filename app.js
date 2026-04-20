@@ -8,6 +8,21 @@
   const MIN_EMPORTER = 12;
   const MIN_LIVRAISON = 20;
 
+  const DRINKS = ['Coca-Cola Original', 'Coca-Cola Sans Sucres', 'Orangina', 'Ice Tea'];
+  const CHOICES = {
+    'Pad Thaï':               { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Panang':                 { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Curry Rouge':            { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Curry Vert':             { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Mi Prat':                { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Pad Kapao':              { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Khao Pad':               { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Bobun':                  { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
+    'Menu Express':           { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
+    'Menu Découverte':        { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
+    'Menu Partage (pour 2)':  { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
+  };
+
   // ── State ──────────────────────────────────────────────
   let cart = JSON.parse(localStorage.getItem('mythai_cart') || '[]');
   let mode = 'emporter'; // 'emporter' | 'livraison'
@@ -88,10 +103,10 @@
     return cart.reduce((s, i) => s + i.qty, 0);
   }
 
-  function addToCart(name, price) {
-    const idx = cart.findIndex(i => i.name === name);
+  function addToCart(name, price, notes) {
+    const idx = cart.findIndex(i => i.name === name && (i.notes||'') === (notes||''));
     if (idx >= 0) { cart[idx].qty++; }
-    else { cart.push({ name, price, qty: 1 }); }
+    else { cart.push({ name, price, qty: 1, ...(notes ? { notes } : {}) }); }
     saveCart();
     renderCart();
     showToast(`✓ ${name} ajouté`);
@@ -142,8 +157,9 @@
     // Build items HTML
     let html = '';
     cart.forEach((item, idx) => {
+      const notesHtml = item.notes ? `<div class="ci-row-notes">${esc(item.notes)}</div>` : '';
       html += `<div class="ci-row">
-        <div class="ci-row-name">${esc(item.name)}</div>
+        <div class="ci-row-name">${esc(item.name)}${notesHtml}</div>
         <div class="ci-row-price">${fmt(item.price * item.qty)}</div>
         <div class="qty-ctrl">
           <button class="qty-btn" data-action="dec" data-idx="${idx}" aria-label="Retirer un">−</button>
@@ -252,18 +268,66 @@
     document.getElementById('stepBtn2').disabled = false;
   });
 
+  // ── Choice modal ───────────────────────────────────────
+  let _choicePending = null;
+
+  function openChoiceModal(name, price) {
+    const config = CHOICES[name];
+    if (!config) { addToCart(name, price); return; }
+    _choicePending = { name, price };
+    document.getElementById('choiceItemName').childNodes[1].textContent = name;
+    document.getElementById('choiceLabel').textContent = config.label;
+    const optsEl = document.getElementById('choiceOptions');
+    optsEl.innerHTML = '';
+    config.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-opt' + (i === 0 ? ' selected' : '');
+      btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        optsEl.querySelectorAll('.choice-opt').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+      optsEl.appendChild(btn);
+    });
+    document.getElementById('choiceOverlay').classList.add('open');
+    document.getElementById('choiceModal').classList.add('open');
+  }
+
+  function closeChoiceModal() {
+    document.getElementById('choiceOverlay').classList.remove('open');
+    document.getElementById('choiceModal').classList.remove('open');
+    _choicePending = null;
+  }
+
+  document.getElementById('choiceOverlay').addEventListener('click', closeChoiceModal);
+  document.getElementById('choiceCancel').addEventListener('click', closeChoiceModal);
+  document.getElementById('choiceConfirm').addEventListener('click', () => {
+    if (!_choicePending) { closeChoiceModal(); return; }
+    const selected = document.querySelector('#choiceOptions .choice-opt.selected');
+    if (!selected) return;
+    const { name, price } = _choicePending;
+    const notes = `${CHOICES[name].prefix}: ${selected.textContent}`;
+    closeChoiceModal();
+    addToCart(name, price, notes);
+    openCart(1);
+  });
+
   // ── Add to cart buttons ────────────────────────────────
   document.querySelectorAll('.btn-add').forEach(btn => {
     btn.addEventListener('click', e => {
       const item = e.target.closest('.food-item');
       const name = item.dataset.name;
       const price = parseFloat(item.dataset.price);
-      addToCart(name, price);
+      if (CHOICES[name]) { openChoiceModal(name, price); }
+      else { addToCart(name, price); }
     });
   });
   document.querySelectorAll('.btn-add-deal').forEach(btn => {
     btn.addEventListener('click', () => {
-      addToCart(btn.dataset.name, parseFloat(btn.dataset.price));
+      const name = btn.dataset.name;
+      const price = parseFloat(btn.dataset.price);
+      if (CHOICES[name]) { openChoiceModal(name, price); }
+      else { addToCart(name, price); }
     });
   });
 
@@ -374,7 +438,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
+          items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty, ...(i.notes ? { notes: i.notes } : {}) })),
           delivery,
           applyPromo: promoEligible,
           promoEmail,

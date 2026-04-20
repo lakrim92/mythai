@@ -474,14 +474,19 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
     if (!isRestaurantOpen())
       return res.status(403).json({ error: 'Le restaurant est actuellement fermé.' });
 
-    const line_items = items.map(item => ({
-      price_data: {
-        currency: 'eur',
-        product_data: { name: String(item.name).trim().slice(0,250) },
-        unit_amount: Math.round(parseFloat(item.price)*100),
-      },
-      quantity: parseInt(item.qty||1,10),
-    }));
+    const line_items = items.map(item => {
+      const label = item.notes
+        ? `${String(item.name).trim()} (${String(item.notes).trim()})`.slice(0, 250)
+        : String(item.name).trim().slice(0, 250);
+      return {
+        price_data: {
+          currency: 'eur',
+          product_data: { name: label },
+          unit_amount: Math.round(parseFloat(item.price)*100),
+        },
+        quantity: parseInt(item.qty||1,10),
+      };
+    });
 
     // Frais de livraison (gratuit pour Bougival, La Celle-Saint-Cloud, Louveciennes)
     const delivZip = (delivery?.zip||'').trim();
