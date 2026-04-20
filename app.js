@@ -115,8 +115,7 @@
 
   function updateBadges() {
     const count = cartCount();
-    console.log('[cart] count=', count, 'cart=', JSON.stringify(cart));
-    const show = count > 0;
+const show = count > 0;
     // Nav badge
     const nb = document.getElementById('navCartBadge');
     nb.textContent = count;
@@ -148,12 +147,13 @@
     if (count === 0) {
       emptyEl.style.display = 'flex';
       itemsEl.innerHTML = '';
-      itemsEl.appendChild(emptyEl);
       warnEl.style.display = 'none';
       btnCo.disabled = true;
       document.getElementById('stepBtn2').disabled = true;
       return;
     }
+
+    emptyEl.style.display = 'none';
 
     // Build items HTML
     let html = '';
@@ -170,7 +170,6 @@
       </div>`;
     });
     itemsEl.innerHTML = html;
-    emptyEl.style.display = 'none';
 
     // Min info + warn
     const modeLabel = mode === 'livraison' ? 'livraison' : 'à emporter';
