@@ -123,6 +123,14 @@ function markPromoUsed(email) {
     fs.writeFile(PROMO_USED_FILE, JSON.stringify(_promoUsedCache), err => { if (err) console.error('promo_used write:', err.message); });
   }
 }
+function unmarkPromoUsed(email) {
+  const n = email.trim().toLowerCase();
+  const idx = _promoUsedCache.indexOf(n);
+  if (idx !== -1) {
+    _promoUsedCache.splice(idx, 1);
+    fs.writeFile(PROMO_USED_FILE, JSON.stringify(_promoUsedCache), err => { if (err) console.error('promo_used write:', err.message); });
+  }
+}
 function isPromoEligible(email) {
   const n = email.trim().toLowerCase();
   if (_promoUsedCache.includes(n)) return false;
@@ -131,10 +139,16 @@ function isPromoEligible(email) {
 
 let _promoCouponId = process.env.PROMO_COUPON_ID || null;
 async function getPromoCouponId() {
-  if (_promoCouponId) return _promoCouponId;
+  if (_promoCouponId) {
+    try {
+      const c = await stripe.coupons.retrieve(_promoCouponId);
+      if (c.valid) return _promoCouponId;
+      _promoCouponId = null; // expired or fully redeemed
+    } catch { _promoCouponId = null; }
+  }
   const coupon = await stripe.coupons.create({ percent_off: 10, duration: 'once', name: 'Première commande -10%' });
   _promoCouponId = coupon.id;
-  console.log(`✅ Coupon créé : ${coupon.id} — ajoutez PROMO_COUPON_ID=${coupon.id} dans .env`);
+  console.log(`✅ Nouveau coupon promo : ${coupon.id} — mettez PROMO_COUPON_ID=${coupon.id} dans .env`);
   return _promoCouponId;
 }
 
@@ -391,7 +405,11 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   if (event.type === 'checkout.session.completed') {
-    try { await processOrder(event.data.object); } catch (err) { console.error('Webhook order error:', err.message); }
+    const session = event.data.object;
+    if (session.metadata?.source !== 'site_mythai') {
+      return res.json({ received: true }); // commande d'un autre restaurant, on ignore
+    }
+    try { await processOrder(session); } catch (err) { console.error('Webhook order error:', err.message); }
   }
   res.json({ received: true });
 });
@@ -405,6 +423,9 @@ app.get('/api/confirm', rlCheckout, async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id);
     if (session.payment_status !== 'paid') return res.status(402).json({ error: 'Paiement non complété' });
+    if (session.metadata?.source !== 'site_mythai') {
+      return res.status(400).json({ error: 'Session invalide pour ce restaurant' });
+    }
     await processOrder(session);
     res.json({ ok: true });
   } catch (err) {
@@ -415,7 +436,6 @@ app.get('/api/confirm', rlCheckout, async (req, res) => {
 
 // ── Horaires ──────────────────────────────────────────────
 function isRestaurantOpen() {
-  if (process.env.FORCE_OPEN === 'true') return true;
   const now = new Date();
   const day = now.getDay();
   const hm  = now.getHours()*60 + now.getMinutes();
@@ -439,8 +459,11 @@ app.get('/api/check-promo', rlCheckout, (req, res) => {
 
 // ── Checkout Stripe ───────────────────────────────────────
 app.post('/api/checkout', rlCheckout, async (req, res) => {
+  let promoApplied = false;
+  let promoEmail   = '';
   try {
-    const { items, delivery, applyPromo, promoEmail } = req.body;
+    const { items, delivery, applyPromo, promoEmail: _promoEmail } = req.body;
+    promoEmail = (_promoEmail || '').trim();
 
     if (!items||!Array.isArray(items)||items.length===0)
       return res.status(400).json({ error: 'Panier vide' });
@@ -503,7 +526,6 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
     }
 
     // Promo -10%
-    let promoApplied = false;
     if (applyPromo && promoEmail) {
       await fileMutex.run(() => {
         if (isPromoEligible(promoEmail)) { markPromoUsed(promoEmail); promoApplied=true; }
@@ -521,13 +543,14 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
       metadata: {
         source:     'site_mythai',
         delivery:   JSON.stringify(delivery||{}),
-        promoEmail: promoApplied ? promoEmail.trim().toLowerCase() : '',
+        promoEmail: promoApplied ? promoEmail.toLowerCase() : '',
       },
     });
 
     savePendingItem(session.id, items);
     res.json({ url: session.url });
   } catch (err) {
+    if (promoApplied && promoEmail) unmarkPromoUsed(promoEmail);
     console.error('Stripe error:', err.message);
     res.status(500).json({ error: 'Erreur paiement' });
   }
@@ -552,6 +575,32 @@ app.post('/api/orders/:id/print', tabletteAuth, (req, res) => {
   const order = loadOrders().find(o => o.id===req.params.id);
   if (!order) return res.status(404).json({ error: 'Commande introuvable' });
   const bytes = buildTicket(order);
+  res.setHeader('Content-Type', 'application/octet-stream');
+  res.send(bytes);
+});
+
+app.post('/api/print/test', tabletteAuth, (req, res) => {
+  const now = new Date();
+  const sep = '--------------------------------';
+  const chunks = [
+    PR.INIT, PR.CP, PR.CTR, PR.BOLD_ON, PR.BIG,
+    prLine('MY THAI'),
+    PR.NRM, PR.BOLD_OFF,
+    prLine('*** TEST IMPRESSION ***'),
+    prLine(''),
+    prLine(now.toLocaleDateString('fr-FR') + '  ' + now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })),
+    PR.LEFT, prLine(sep),
+    prLine('Imprimante : OK'),
+    prLine('Connexion  : OK'),
+    prLine(sep),
+    PR.CTR, PR.BOLD_ON,
+    prLine('My Thai Street Food'),
+    PR.BOLD_OFF,
+    prLine('Bougival'),
+    prLine(''),
+    PR.FEED, PR.CUT,
+  ];
+  const bytes = Buffer.concat(chunks);
   res.setHeader('Content-Type', 'application/octet-stream');
   res.send(bytes);
 });

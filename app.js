@@ -63,8 +63,8 @@
   (function() {
     const now = new Date(), day = now.getDay(), h = now.getHours() + now.getMinutes()/60;
     const open = day !== 0 && (
-      (h >= 11.5 && h < 14.5) ||
-      (h >= 18.5 && h < (day >= 5 ? 23 : 22.5))
+      (h >= 11 && h < 15) ||
+      (h >= 18 && h < 23)
     );
     const dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
     if (!open) { dot.classList.add('closed'); txt.textContent = 'Fermé — Retrouvez-nous bientôt'; }
@@ -415,6 +415,20 @@ const show = count > 0;
     payText.style.display = 'none';
     spinner.style.display = 'block';
     errEl.style.display = 'none';
+
+    // If user never blurred the email field, check promo eligibility now
+    if (!promoEligible) {
+      const email = getVal('fEmail');
+      if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        try {
+          const r = await fetch(`/api/check-promo?email=${encodeURIComponent(email)}`);
+          const d = await r.json();
+          promoEligible = d.eligible;
+          document.getElementById('promoBlock').style.display = promoEligible ? 'block' : 'none';
+          updateCheckoutTotals();
+        } catch { promoEligible = false; }
+      }
+    }
 
     const delivery = {
       mode,
