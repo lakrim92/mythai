@@ -533,11 +533,9 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
       });
     }
 
-    // Promo -10%
-    if (applyPromo && promoEmail) {
-      await fileMutex.run(() => {
-        if (isPromoEligible(promoEmail)) { markPromoUsed(promoEmail); promoApplied = true; }
-      });
+    // Promo -10% — vérification éligibilité uniquement ici, markPromoUsed dans le webhook après paiement confirmé
+    if (applyPromo && promoEmail && isPromoEligible(promoEmail)) {
+      promoApplied = true;
     }
     let discounts = undefined;
     if (promoApplied) {
@@ -563,7 +561,6 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
     savePendingItem(session.id, items);
     res.json({ url: session.url });
   } catch (err) {
-    if (promoApplied && promoEmail) unmarkPromoUsed(promoEmail);
     console.error('Stripe error:', err.message);
     res.status(500).json({ error: 'Erreur paiement' });
   }
