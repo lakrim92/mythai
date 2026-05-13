@@ -1,6 +1,15 @@
 (function() {
   'use strict';
 
+  // ── Coupe du Monde 2026 (11 juin → 19 juillet) ────────
+  (function() {
+    const now = new Date();
+    const start = new Date('2026-06-11');
+    const end   = new Date('2026-07-20'); // exclusif
+    const el = document.getElementById('sectionCoupe');
+    if (el && now >= start && now < end) el.style.display = '';
+  })();
+
   // ── Constants ──────────────────────────────────────────
   const DELIVERY_ZONES = new Set(['78380','78230','78430','78170','78290','78400','78160','92500','92210']);
   const DELIVERY_FEE = 2.50;
