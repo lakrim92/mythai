@@ -3,35 +3,35 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
   <url>
-    <loc>https://mythai-bougival.fr/</loc>
+    <loc>https://mythai.fr/</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://mythai-bougival.fr/#carte</loc>
+    <loc>https://mythai.fr/#carte</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://mythai-bougival.fr/#commander</loc>
+    <loc>https://mythai.fr/#commander</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://mythai-bougival.fr/#livraison</loc>
+    <loc>https://mythai.fr/#livraison</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://mythai-bougival.fr/legal.html</loc>
+    <loc>https://mythai.fr/legal.html</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>

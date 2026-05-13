@@ -64,6 +64,15 @@ class Mutex {
 }
 const fileMutex = new Mutex();
 
+// ── Atomic file write (write .tmp then rename) ─────────────
+function atomicWrite(file, data) {
+  const tmp = file + '.tmp';
+  fs.writeFile(tmp, data, err => {
+    if (err) { console.error(`atomicWrite write ${path.basename(file)}:`, err.message); return; }
+    fs.rename(tmp, file, err => { if (err) console.error(`atomicWrite rename ${path.basename(file)}:`, err.message); });
+  });
+}
+
 // ── Timing-safe string compare ────────────────────────────
 function timingSafeEquals(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
@@ -102,6 +111,8 @@ setInterval(() => { const now = Date.now(); _sessions.forEach((v, k) => { if (no
 
 // ── Auth middleware ────────────────────────────────────────
 function tabletteAuth(req, res, next) {
+  const internalKey = process.env.MYTHAI_INTERNAL_API_KEY;
+  if (internalKey && req.headers['x-internal-api-key'] === internalKey) return next();
   const token = req.headers['x-session-token'];
   if (!token) return res.status(401).json({ error: 'Non autorisé' });
   const session = _sessions.get(token);
@@ -120,7 +131,7 @@ function markPromoUsed(email) {
   const n = email.trim().toLowerCase();
   if (!_promoUsedCache.includes(n)) {
     _promoUsedCache.push(n);
-    fs.writeFile(PROMO_USED_FILE, JSON.stringify(_promoUsedCache), err => { if (err) console.error('promo_used write:', err.message); });
+    atomicWrite(PROMO_USED_FILE, JSON.stringify(_promoUsedCache));
   }
 }
 function unmarkPromoUsed(email) {
@@ -128,7 +139,7 @@ function unmarkPromoUsed(email) {
   const idx = _promoUsedCache.indexOf(n);
   if (idx !== -1) {
     _promoUsedCache.splice(idx, 1);
-    fs.writeFile(PROMO_USED_FILE, JSON.stringify(_promoUsedCache), err => { if (err) console.error('promo_used write:', err.message); });
+    atomicWrite(PROMO_USED_FILE, JSON.stringify(_promoUsedCache));
   }
 }
 function isPromoEligible(email) {
@@ -139,16 +150,10 @@ function isPromoEligible(email) {
 
 let _promoCouponId = process.env.PROMO_COUPON_ID || null;
 async function getPromoCouponId() {
-  if (_promoCouponId) {
-    try {
-      const c = await stripe.coupons.retrieve(_promoCouponId);
-      if (c.valid) return _promoCouponId;
-      _promoCouponId = null; // expired or fully redeemed
-    } catch { _promoCouponId = null; }
-  }
+  if (_promoCouponId) return _promoCouponId;
   const coupon = await stripe.coupons.create({ percent_off: 10, duration: 'once', name: 'Première commande -10%' });
   _promoCouponId = coupon.id;
-  console.log(`✅ Nouveau coupon promo : ${coupon.id} — mettez PROMO_COUPON_ID=${coupon.id} dans .env`);
+  console.log(`✅ Coupon promo créé : ${coupon.id} — ajoutez PROMO_COUPON_ID=${coupon.id} dans .env`);
   return _promoCouponId;
 }
 
@@ -156,19 +161,19 @@ async function getPromoCouponId() {
 function loadOrders()       { return _ordersCache; }
 function saveOrders(orders) {
   _ordersCache = orders;
-  fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2), err => { if (err) console.error('orders write:', err.message); });
+  atomicWrite(ORDERS_FILE, JSON.stringify(orders, null, 2));
 }
 
 function loadPendingItems() { return _pendingItemsCache; }
 function savePendingItem(sessionId, items) {
   _pendingItemsCache[sessionId] = items;
-  fs.writeFile(PENDING_ITEMS_FILE, JSON.stringify(_pendingItemsCache), err => { if (err) console.error('pending_items write:', err.message); });
+  atomicWrite(PENDING_ITEMS_FILE, JSON.stringify(_pendingItemsCache));
 }
 function popPendingItem(sessionId) {
   const items = _pendingItemsCache[sessionId];
   if (items) {
     delete _pendingItemsCache[sessionId];
-    fs.writeFile(PENDING_ITEMS_FILE, JSON.stringify(_pendingItemsCache), err => { if (err) console.error('pending_items write:', err.message); });
+    atomicWrite(PENDING_ITEMS_FILE, JSON.stringify(_pendingItemsCache));
   }
   return items || null;
 }
@@ -436,6 +441,7 @@ app.get('/api/confirm', rlCheckout, async (req, res) => {
 
 // ── Horaires ──────────────────────────────────────────────
 function isRestaurantOpen() {
+  if (process.env.FORCE_OPEN === 'true') return true;
   const now = new Date();
   const day = now.getDay();
   const hm  = now.getHours()*60 + now.getMinutes();
@@ -481,10 +487,12 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
 
     const isLiv = delivery?.mode === 'livraison';
 
-    // Minimum commande
+    // Minimum commande — check on final total after promo discount
     const cartTotal = items.reduce((s,i) => s+parseFloat(i.price)*parseInt(i.qty||1,10), 0);
     const minOrder = isLiv ? 20 : 12;
-    if (cartTotal < minOrder)
+    const promoWillApply = applyPromo && promoEmail && isPromoEligible(promoEmail);
+    const effectiveTotal = promoWillApply ? Math.round(cartTotal * 0.9 * 100) / 100 : cartTotal;
+    if (effectiveTotal < minOrder)
       return res.status(400).json({ error: `Minimum de commande : ${minOrder}€` });
 
     // Validation zone livraison
@@ -528,8 +536,13 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
     // Promo -10%
     if (applyPromo && promoEmail) {
       await fileMutex.run(() => {
-        if (isPromoEligible(promoEmail)) { markPromoUsed(promoEmail); promoApplied=true; }
+        if (isPromoEligible(promoEmail)) { markPromoUsed(promoEmail); promoApplied = true; }
       });
+    }
+    let discounts = undefined;
+    if (promoApplied) {
+      const couponId = await getPromoCouponId();
+      discounts = [{ coupon: couponId }];
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -539,7 +552,7 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
       success_url: `${process.env.SITE_URL}/merci.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url:  `${process.env.SITE_URL}/#commander`,
       locale: 'fr',
-      ...(promoApplied ? { discounts: [{ coupon: await getPromoCouponId() }] } : {}),
+      ...(discounts ? { discounts } : {}),
       metadata: {
         source:     'site_mythai',
         delivery:   JSON.stringify(delivery||{}),
@@ -681,6 +694,8 @@ app.get('/api/auth/verify', (req, res) => {
 });
 
 function adminAuth(req, res, next) {
+  const internalKey = process.env.MYTHAI_INTERNAL_API_KEY;
+  if (internalKey && req.headers['x-internal-api-key'] === internalKey) return next();
   const token = req.headers['x-admin-password'];
   const s = token && _sessions.get(token);
   if (s && Date.now() < s.expiresAt && s.role === 'admin') return next();
@@ -1108,9 +1123,35 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// ── Réconciliation Stripe au démarrage ────────────────────
+async function reconcileStripeOrders() {
+  try {
+    const since = Math.floor((Date.now() - 2 * 60 * 60 * 1000) / 1000);
+    const sessions = await stripe.checkout.sessions.list({ limit: 100, created: { gte: since } });
+    const existingIds = new Set(loadOrders().map(o => o.id));
+    let count = 0;
+    for (const session of sessions.data) {
+      if (session.payment_status !== 'paid') continue;
+      if (session.metadata?.source !== 'site_mythai') continue;
+      if (existingIds.has(session.id)) continue;
+      console.log(`🔄 Réconciliation : session manquante ${session.id}`);
+      try { await processOrder(session); count++; } catch (err) { console.error('Réconciliation processOrder:', err.message); }
+    }
+    console.log(count
+      ? `✅ Réconciliation : ${count} commande(s) récupérée(s)`
+      : '✅ Réconciliation : aucune commande manquante'
+    );
+  } catch (err) {
+    console.error('Réconciliation Stripe:', err.message);
+  }
+}
+
 // ── Startup ───────────────────────────────────────────────
 function loadFile(file, def) {
-  try { return JSON.parse(fs.readFileSync(file,'utf8')); } catch { return def; }
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (err) {
+    if (err.code !== 'ENOENT') console.error(`⚠️  ${path.basename(file)} illisible (${err.message}) — données ignorées`);
+    return def;
+  }
 }
 _ordersCache       = loadFile(ORDERS_FILE, []);
 _promoUsedCache    = loadFile(PROMO_USED_FILE, []);
@@ -1120,4 +1161,5 @@ app.listen(PORT, () => {
   console.log(`\n🍜 My Thai Street Food — http://localhost:${PORT}`);
   console.log(`   Commandes : ${_ordersCache.length} en base`);
   console.log(`   Zones livraison : ${[...DELIVERY_ZONES].join(', ')}\n`);
+  reconcileStripeOrders();
 });

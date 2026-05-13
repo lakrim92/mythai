@@ -4,7 +4,7 @@
 - Serveur : Node.js/Express — port `3006`
 - PM2 : process `mythai`
 - Stripe : compte partagé avec Panuozzo — `metadata.source = "site_mythai"`
-- Domaine : mythai-bougival.fr (à configurer)
+- Domaine : mythai.fr (à configurer)
 
 ---
 
@@ -73,8 +73,8 @@
 - [x] Schema.org `Restaurant`, `WebSite`, `BreadcrumbList` dans `index.html`
 - [x] Open Graph + Twitter Card
 - [x] Meta title/description/keywords optimisés
-- [ ] **⏳ Google Search Console** — en attente création compte Google
-- [ ] **⏳ Google Business Profile** — en attente création compte Google
+- [x] **Google Search Console** — propriété vérifiée, sitemap soumis, indexation demandée
+- [x] **Google Business Profile** — fiche créée
 
 ### 9. Stripe webhook ✅
 - [x] Endpoint configuré dans le dashboard Stripe
@@ -88,27 +88,82 @@
 
 ### 11. Nginx + domaine
 - [x] Vhost `mythai.ai-autoheal.com` actif (SSL Let's Encrypt) — utilisé pendant la phase de test
-- [x] Vhost `mythai-bougival.fr` créé dans `/etc/nginx/sites-available/` (prêt, en attente DNS)
-- [ ] **⏳ Quand le domaine `mythai-bougival.fr` est créé** :
-  - Pointer DNS `A` + `www` vers l'IP publique du Pi
-  - Lancer : `sudo certbot --nginx -d mythai-bougival.fr -d www.mythai-bougival.fr --non-interactive --agree-tos --email jo.choupinou@gmail.com`
-  - Mettre à jour `SITE_URL` dans `.env` : `https://mythai-bougival.fr`
-  - Mettre à jour `canonical` + Schema.org dans `index.html` si domaine différent de `mythai-bougival.fr`
+- [x] Vhost `mythai.fr` créé dans `/etc/nginx/sites-available/` (prêt, en attente DNS)
+- [x] DNS `A` + `www` pointés vers `88.167.40.86`
+- [x] SSL Let's Encrypt actif sur `mythai.fr` et `www.mythai.fr`
+- [x] `SITE_URL=https://mythai.fr` dans `.env` (déjà correct)
+- [x] `canonical` + Schema.org déjà sur `mythai.fr`
+
+---
+
+## 🔴 À corriger — INCIDENTS DU 04/05/2026
+
+> Incidents survenus ce soir : serveur down, commande perdue, mails non envoyés, tablette aveugle.
+
+> ⏰ **Quand effectuer ces corrections ?**
+> - **Fix A** : à tout moment, sans impact
+> - **Fix B, C, D** : uniquement **après 23h00 ou avant 11h00** (restaurant fermé) — ces fixes nécessitent un `pm2 reload` qui coupe brièvement les connexions SSE de la tablette
+
+### A. `pm2 startup` + `pm2 save` — PRIORITÉ CRITIQUE ✅
+- [x] `pm2 startup systemd` configuré — service `pm2-lakrim.service` actif
+- [x] `pm2 save` fait — tous les process sauvegardés
+
+### B. Writes atomiques pour `orders.json` — PRIORITÉ CRITIQUE ✅
+- [x] `atomicWrite()` (write `.tmp` → rename) dans **mythai/server.js** pour orders, pending_items, promo_used
+- [x] `loadFile()` loggue un warning si fichier corrompu (sans écraser)
+- Note : woodiz/panuozzo à faire séparément
+
+### C. Réconciliation Stripe au démarrage — PRIORITÉ IMPORTANTE ✅
+- [x] `reconcileStripeOrders()` au boot — compare sessions payées des 2 dernières heures avec orders.json
+- [x] Testé : doublon détecté correctement, commande manquante traitée
+- Note : woodiz/panuozzo à faire séparément
+
+### D. Token woodiz→mythai : API key statique — PRIORITÉ MOYENNE ✅
+- [x] `MYTHAI_INTERNAL_API_KEY` dans les deux `.env`
+- [x] mythai : `tabletteAuth` + `adminAuth` acceptent `x-internal-api-key`
+- [x] woodiz : `getMythaiToken()` supprimé, remplacé par `getMythaiInternalHeader()` statique
+- [x] Testé : 200 avec clé, 401 sans clé
 
 ---
 
 ## 🟢 Améliorations futures (optionnel)
 
-- [ ] Imprimante thermique (même config que Panuozzo une fois le matériel branché)
+### Imprimante thermique — État & procédure
+
+**État actuel (05/05/2026) :**
+- `printserver.js` existe dans Termux sur la tablette (`~/printserver.js`)
+- Imprimante : `192.168.1.130:9100` (réseau local restaurant)
+- Test shell fonctionne : `curl -s https://www.panuozzo-bougival.fr/test-print.sh | sh` → imprime ✅
+- Impression depuis l'UI tablette → "Erreur réseau" ❌
+- `tablette.js` : fix reconnexion SSE déployé (impression auto sur init + suivi `_printed_ids`)
+
+**Cause probable "Erreur réseau" depuis le navigateur :**
+- La page tablette est servie en HTTPS (`https://www.panuozzo-bougival.fr`)
+- Le navigateur bloque `fetch('http://localhost:19099')` (mixed content HTTPS→HTTP)
+- Chromium/Android impose cette restriction même pour localhost
+
+**Pour corriger (à faire) :**
+- [ ] Servir le printserver en HTTPS avec certificat auto-signé, OU
+- [ ] Passer le printserver sur WebSocket (plus compatible navigateur), OU
+- [ ] Utiliser `chrome://flags/#block-insecure-private-network-requests` (désactiver temporairement sur la tablette pour tester)
+- [ ] Une fois la cause confirmée : implémenter la solution retenue dans `printserver.js`
+
+**Démarrage manuel (Termux) :**
+```sh
+pkill -f printserver.js; node ~/printserver.js &
+```
+(le `pkill` évite EADDRINUSE si une instance tourne déjà)
+
+**À faire aussi :**
+- [ ] Auto-démarrage au boot de la tablette (Termux:Boot + script de démarrage)
 - [ ] PWA tablette dédiée My Thai (ou mutualisation avec tablette Panuozzo — voir TODO-MULTI-RESTAURANT.md)
 - [ ] Pages SEO locales par zone de livraison
 
 ### Avis Google (en attente compte Google)
 - [x] Endpoint `/api/reviews` — filtre ≥ 4 étoiles, 3 plus récents, cache 6h (retourne `[]` sans clés)
 - [x] Section `#avis` dans `index.html` — masquée, s'affiche automatiquement au 1er avis valide
-- [ ] **⏳ Quand compte Google créé** : ajouter dans `.env` :
-  - `GOOGLE_PLACES_API_KEY=<clé>`
-  - `GOOGLE_PLACE_ID=<id>` (trouvable via Google Maps → partager → URL)
+- [x] Avis en dur dans `app.js` (Georges Dietrich, Got Hammadi, Mohamed Ali Hajjem) — Places API non utilisée (billing requis)
+- [x] `GOOGLE_PLACE_ID=ChIJP3jv12195kcRR22PFgkYH5o` dans `.env`
 - [ ] Ajouter Schema.org `AggregateRating` dans `index.html` dès 5+ avis Google
 
 ---

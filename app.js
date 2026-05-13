@@ -8,23 +8,28 @@
   const MIN_EMPORTER = 12;
   const MIN_LIVRAISON = 20;
 
-  const DRINKS = ['Coca-Cola Original', 'Coca-Cola Sans Sucres', 'Orangina', 'Ice Tea'];
+  const DRINKS = ['Coca-Cola Original (canette)', 'Coca-Cola Sans Sucres (canette)', 'Orangina (canette)', 'Ice Tea (canette)'];
+  const MEAT_OPTS = ['Bœuf', 'Poulet', 'Crevettes'];
   const CHOICES = {
-    'Pad Thaï':               { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Panang':                 { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Curry Rouge':            { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Curry Vert':             { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Mi Prat':                { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Pad Kapao':              { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Khao Pad':               { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Bobun':                  { label: 'Choisissez votre viande', prefix: 'Viande', opts: ['Bœuf','Poulet','Crevettes'] },
-    'Menu Express':           { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
-    'Menu Découverte':        { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
-    'Menu Partage (pour 2)':  { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
+    'Gyoza':           { label: 'Choisissez votre garniture', prefix: 'Garniture', opts: ['Poulet', 'Crevettes'] },
+    'Pad Thaï':        { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Panang':          { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Curry Rouge':     { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Curry Vert':      { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Mi Prat':         { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Pad Kapao':       { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Khao Pad':        { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Bobun':           { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+    'Menu Pad Thaï':   { steps: [
+      { label: 'Choisissez votre viande', prefix: 'Viande', opts: MEAT_OPTS },
+      { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
+    ]},
+    'Menu Loc Lak Bœuf':        { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
+    'Menu Rice Chicken Krousty': { label: 'Choisissez votre boisson', prefix: 'Boisson', opts: DRINKS },
   };
 
   // ── State ──────────────────────────────────────────────
-  let cart = JSON.parse(localStorage.getItem('mythai_cart') || '[]');
+  let cart = (() => { try { return JSON.parse(localStorage.getItem('mythai_cart') || '[]'); } catch { return []; } })();
   let mode = 'emporter'; // 'emporter' | 'livraison'
   let promoEligible = false;
 
@@ -59,16 +64,17 @@
     }
   });
 
-  // ── Open/Closed status ────────────────────────────────
-  (function() {
+  // ── Open/Closed status (recalculé toutes les minutes) ────
+  function updateOpenStatus() {
     const now = new Date(), day = now.getDay(), h = now.getHours() + now.getMinutes()/60;
-    const open = day !== 0 && (
-      (h >= 11 && h < 15) ||
-      (h >= 18 && h < 23)
-    );
-    const dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
-    if (!open) { dot.classList.add('closed'); txt.textContent = 'Fermé — Retrouvez-nous bientôt'; }
-  })();
+    const open = day !== 0 && ((h >= 11 && h < 15) || (h >= 18 && h < 23));
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    dot.classList.toggle('closed', !open);
+    txt.textContent = open ? 'Ouvert maintenant · Bougival' : 'Fermé — Retrouvez-nous bientôt';
+  }
+  updateOpenStatus();
+  setInterval(updateOpenStatus, 60_000);
 
   // ── Particles ─────────────────────────────────────────
   (function() {
@@ -174,8 +180,10 @@ const show = count > 0;
     // Min info + warn
     const modeLabel = mode === 'livraison' ? 'livraison' : 'à emporter';
     infoEl.textContent = `Minimum ${modeLabel} : ${min} €`;
-    if (total < min) {
-      warnEl.textContent = `Encore ${fmt(min - total)} pour atteindre le minimum`;
+    // Check minimum on final total (promo may bring it below threshold)
+    const effectiveTotal = promoEligible ? Math.round(total * 0.9 * 100) / 100 : total;
+    if (effectiveTotal < min) {
+      warnEl.textContent = `Encore ${fmt(min - effectiveTotal)} pour atteindre le minimum`;
       warnEl.style.display = 'block';
       btnCo.disabled = true;
       document.getElementById('stepBtn2').disabled = true;
@@ -270,16 +278,18 @@ const show = count > 0;
 
   // ── Choice modal ───────────────────────────────────────
   let _choicePending = null;
+  let _choiceStep = 0;
+  let _choiceSelections = [];
 
-  function openChoiceModal(name, price) {
+  function _renderChoiceStep() {
+    const { name } = _choicePending;
     const config = CHOICES[name];
-    if (!config) { addToCart(name, price); return; }
-    _choicePending = { name, price };
+    const stepConfig = config.steps ? config.steps[_choiceStep] : config;
     document.getElementById('choiceItemTitle').textContent = name;
-    document.getElementById('choiceLabel').textContent = config.label;
+    document.getElementById('choiceLabel').textContent = stepConfig.label;
     const optsEl = document.getElementById('choiceOptions');
     optsEl.innerHTML = '';
-    config.opts.forEach((opt, i) => {
+    stepConfig.opts.forEach((opt, i) => {
       const btn = document.createElement('button');
       btn.className = 'choice-opt' + (i === 0 ? ' selected' : '');
       btn.textContent = opt;
@@ -289,6 +299,15 @@ const show = count > 0;
       });
       optsEl.appendChild(btn);
     });
+  }
+
+  function openChoiceModal(name, price) {
+    const config = CHOICES[name];
+    if (!config) { addToCart(name, price); return; }
+    _choicePending = { name, price };
+    _choiceStep = 0;
+    _choiceSelections = [];
+    _renderChoiceStep();
     document.getElementById('choiceOverlay').classList.add('open');
     document.getElementById('choiceModal').classList.add('open');
   }
@@ -297,6 +316,8 @@ const show = count > 0;
     document.getElementById('choiceOverlay').classList.remove('open');
     document.getElementById('choiceModal').classList.remove('open');
     _choicePending = null;
+    _choiceStep = 0;
+    _choiceSelections = [];
   }
 
   document.getElementById('choiceOverlay').addEventListener('click', closeChoiceModal);
@@ -306,10 +327,18 @@ const show = count > 0;
     const selected = document.querySelector('#choiceOptions .choice-opt.selected');
     if (!selected) return;
     const { name, price } = _choicePending;
-    const notes = `${CHOICES[name].prefix}: ${selected.textContent}`;
-    closeChoiceModal();
-    addToCart(name, price, notes);
-    openCart(1);
+    const config = CHOICES[name];
+    const stepConfig = config.steps ? config.steps[_choiceStep] : config;
+    _choiceSelections.push(`${stepConfig.prefix}: ${selected.textContent}`);
+    if (config.steps && _choiceStep < config.steps.length - 1) {
+      _choiceStep++;
+      _renderChoiceStep();
+    } else {
+      const notes = _choiceSelections.join(' | ');
+      closeChoiceModal();
+      addToCart(name, price, notes);
+      openCart(1);
+    }
   });
 
   // ── Add to cart buttons ────────────────────────────────
@@ -346,11 +375,16 @@ const show = count > 0;
     updateCheckoutTotals();
   }
 
-  // ── Promo check (on email blur) ────────────────────────
+  // ── Promo check (on email input, temps réel) ────────────
   let _promoTimer;
-  document.getElementById('fEmail').addEventListener('blur', async () => {
+  document.getElementById('fEmail').addEventListener('input', async () => {
     const email = document.getElementById('fEmail').value.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { promoEligible = false; document.getElementById('promoBlock').style.display = 'none'; updateCheckoutTotals(); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      promoEligible = false;
+      document.getElementById('promoBlock').style.display = 'none';
+      updateCheckoutTotals();
+      return;
+    }
     clearTimeout(_promoTimer);
     _promoTimer = setTimeout(async () => {
       try {
@@ -360,7 +394,7 @@ const show = count > 0;
         document.getElementById('promoBlock').style.display = promoEligible ? 'block' : 'none';
         updateCheckoutTotals();
       } catch { promoEligible = false; }
-    }, 400);
+    }, 500);
   });
 
   // ── Form validation ────────────────────────────────────
@@ -402,6 +436,16 @@ const show = count > 0;
 
   // ── Pay button ─────────────────────────────────────────
   document.getElementById('btnPay').addEventListener('click', async () => {
+    // Block if restaurant is closed (server will also reject, but fail fast client-side)
+    const _now = new Date(), _day = _now.getDay(), _hm = _now.getHours() * 60 + _now.getMinutes();
+    const _open = _day !== 0 && ((_hm >= 11 * 60 && _hm < 15 * 60) || (_hm >= 18 * 60 && _hm < 23 * 60));
+    if (!_open) {
+      const errEl = document.getElementById('payErr');
+      errEl.textContent = 'Le restaurant est actuellement fermé. Revenez pendant les horaires d\'ouverture.';
+      errEl.style.display = 'block';
+      document.getElementById('checkoutForm').scrollTop = 0;
+      return;
+    }
     if (!validateForm()) {
       document.getElementById('checkoutForm').scrollTop = 0;
       return;
@@ -415,20 +459,6 @@ const show = count > 0;
     payText.style.display = 'none';
     spinner.style.display = 'block';
     errEl.style.display = 'none';
-
-    // If user never blurred the email field, check promo eligibility now
-    if (!promoEligible) {
-      const email = getVal('fEmail');
-      if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        try {
-          const r = await fetch(`/api/check-promo?email=${encodeURIComponent(email)}`);
-          const d = await r.json();
-          promoEligible = d.eligible;
-          document.getElementById('promoBlock').style.display = promoEligible ? 'block' : 'none';
-          updateCheckoutTotals();
-        } catch { promoEligible = false; }
-      }
-    }
 
     const delivery = {
       mode,
@@ -484,7 +514,29 @@ const show = count > 0;
   // ── Google Reviews ─────────────────────────────────────
   async function loadReviews() {
     try {
-      const reviews = await fetch('/api/reviews').then(r => r.json());
+      const reviews = [
+        {
+          author: 'Georges Dietrich',
+          rating: 5,
+          text: "J'y vais depuis un moment. Les plats sont toujours excellents, la qualité est au rendez-vous. On s'en lasse pas. Je recommande vivement.",
+          time: 'Il y a une semaine',
+          photo: null,
+        },
+        {
+          author: 'Got Hammadi',
+          rating: 5,
+          text: '',
+          time: 'Il y a une semaine',
+          photo: null,
+        },
+        {
+          author: 'Mohamed Ali Hajjem',
+          rating: 5,
+          text: '',
+          time: 'Il y a une semaine',
+          photo: null,
+        },
+      ];
       if (!Array.isArray(reviews) || reviews.length === 0) return;
 
       const grid = document.getElementById('avisGrid');
