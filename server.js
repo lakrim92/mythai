@@ -156,6 +156,10 @@ async function getPromoCouponId() {
   console.log(`✅ Coupon promo créé : ${coupon.id} — ajoutez PROMO_COUPON_ID=${coupon.id} dans .env`);
   return _promoCouponId;
 }
+async function invalidateExpiredCoupon() {
+  _promoCouponId = null;
+  console.log('⚠️  Coupon promo expiré/invalide — un nouveau sera créé à la prochaine commande promo');
+}
 
 // ── Persistance commandes ─────────────────────────────────
 function loadOrders()       { return _ordersCache; }
@@ -543,20 +547,44 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
       discounts = [{ coupon: couponId }];
     }
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items,
-      mode: 'payment',
-      success_url: `${process.env.SITE_URL}/merci.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${process.env.SITE_URL}/#commander`,
-      locale: 'fr',
-      ...(discounts ? { discounts } : {}),
-      metadata: {
-        source:     'site_mythai',
-        delivery:   JSON.stringify(delivery||{}),
-        promoEmail: promoApplied ? promoEmail.toLowerCase() : '',
-      },
-    });
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items,
+        mode: 'payment',
+        success_url: `${process.env.SITE_URL}/merci.html?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url:  `${process.env.SITE_URL}/#commander`,
+        locale: 'fr',
+        ...(discounts ? { discounts } : {}),
+        metadata: {
+          source:     'site_mythai',
+          delivery:   JSON.stringify(delivery||{}),
+          promoEmail: promoApplied ? promoEmail.toLowerCase() : '',
+        },
+      });
+    } catch (stripeErr) {
+      // Si le coupon est expiré, réessayer sans promo plutôt que bloquer la commande
+      if (discounts && stripeErr.message?.toLowerCase().includes('expired')) {
+        await invalidateExpiredCoupon();
+        session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items,
+          mode: 'payment',
+          success_url: `${process.env.SITE_URL}/merci.html?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url:  `${process.env.SITE_URL}/#commander`,
+          locale: 'fr',
+          metadata: {
+            source:   'site_mythai',
+            delivery: JSON.stringify(delivery||{}),
+            promoEmail: '',
+          },
+        });
+        console.error('⚠️  Coupon expiré — commande créée sans promo. Mettez à jour PROMO_COUPON_ID dans .env');
+      } else {
+        throw stripeErr;
+      }
+    }
 
     savePendingItem(session.id, items);
     res.json({ url: session.url });
