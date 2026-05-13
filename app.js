@@ -252,9 +252,9 @@ const show = count > 0;
   document.getElementById('cartCloseBtn').addEventListener('click', closeCart);
   document.getElementById('navCartBtn').addEventListener('click', () => openCart(1));
   document.getElementById('fabCart').addEventListener('click', () => openCart(1));
-  document.getElementById('mobileOrderBtn').addEventListener('click', () => openCart(1));
-  document.getElementById('heroOrderBtn').addEventListener('click', () => openCart(1));
-  document.getElementById('footOrderLink').addEventListener('click', e => { e.preventDefault(); openCart(1); });
+  document.getElementById('mobileOrderBtn').addEventListener('click', () => document.getElementById('menu').scrollIntoView({ behavior: 'smooth' }));
+  document.getElementById('heroOrderBtn').addEventListener('click', () => document.getElementById('menu').scrollIntoView({ behavior: 'smooth' }));
+  document.getElementById('footOrderLink').addEventListener('click', e => { e.preventDefault(); document.getElementById('menu').scrollIntoView({ behavior: 'smooth' }); });
 
   // Escape key
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
