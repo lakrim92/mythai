@@ -49,9 +49,19 @@ const DELIVERY_ZONES = new Set([
   '78160', // Marly-le-Roi
   '92500', // Rueil-Malmaison
   '92210', // Saint-Cloud
+  '92380', // Garches
 ]);
-const DELIVERY_FEE = 2.50; // €
-const FREE_DELIVERY_ZONES = new Set(['78380','78170','78430']); // Bougival, La Celle-Saint-Cloud, Louveciennes
+const DELIVERY_FEE          = 2.50; // €
+const DELIVERY_FEE_GARCHES  = 3.00; // € — Garches (plus éloigné)
+const GARCHES_ZONES         = new Set(['92380']);
+const FREE_DELIVERY_ZONES   = new Set(['78380','78170','78430']); // Bougival, La Celle-Saint-Cloud, Louveciennes
+
+function getDeliveryFee(zip) {
+  const z = (zip || '').trim();
+  if (FREE_DELIVERY_ZONES.has(z)) return 0;
+  if (GARCHES_ZONES.has(z))       return DELIVERY_FEE_GARCHES;
+  return DELIVERY_FEE;
+}
 
 // ── Mutex (atomic file read-modify-write) ─────────────────
 class Mutex {
@@ -244,7 +254,8 @@ function buildTicket(order) {
   chunks.push(PR.BOLD_ON, prLine(`TOTAL  : ${(order.total||0).toFixed(2)} EUR`), PR.BOLD_OFF);
   if (order.promoApplied) chunks.push(prLine('Promo -10% appliquee !'));
   if (d.instructions) chunks.push(prLine(''), prLine(`Note: ${d.instructions}`));
-  if (isLiv && !FREE_DELIVERY_ZONES.has((d.zip||'').trim())) chunks.push(prLine(''), PR.BOLD_ON, prLine('+2.50 EUR LIVRAISON'), PR.BOLD_OFF);
+  const _printFee = getDeliveryFee(d.zip);
+  if (isLiv && _printFee > 0) chunks.push(prLine(''), PR.BOLD_ON, prLine(`+${_printFee.toFixed(2)} EUR LIVRAISON`), PR.BOLD_OFF);
   chunks.push(PR.FEED, PR.CUT);
   return Buffer.concat(chunks);
 }
@@ -355,7 +366,7 @@ async function processOrder(session) {
           <p>Votre commande est bien enregistrée et en cours de préparation.</p>
           <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:.92rem">${itemsHtml}
             <tr><td colspan="2" style="padding:4px 0"><hr style="border:none;border-top:1px solid #eee"/></td></tr>
-            ${isLiv && !FREE_DELIVERY_ZONES.has((delivery.zip||'').trim()) ? `<tr><td style="color:#666">Frais de livraison</td><td align="right">2.50€</td></tr>` : ''}
+            ${isLiv && getDeliveryFee(delivery.zip) > 0 ? `<tr><td style="color:#666">Frais de livraison</td><td align="right">${getDeliveryFee(delivery.zip).toFixed(2)}€</td></tr>` : ''}
             ${promoApplied ? `<tr><td style="color:#16a34a;font-size:.88rem">🎉 Réduction -10%</td><td align="right" style="color:#16a34a;font-size:.88rem">-${discount.toFixed(2)}€</td></tr>` : ''}
             <tr><td><strong>Total payé</strong></td><td align="right"><strong>${order.total.toFixed(2)}€</strong></td></tr>
           </table>
@@ -391,7 +402,7 @@ async function processOrder(session) {
           <h3 style="margin-bottom:8px">Articles</h3>
           <table style="width:100%;border-collapse:collapse;font-size:.9rem">${itemsHtml}
             <tr><td colspan="2"><hr style="border:none;border-top:1px solid #eee"/></td></tr>
-            ${isLiv && !FREE_DELIVERY_ZONES.has((delivery.zip||'').trim()) ? `<tr><td>Livraison</td><td align="right">2.50€</td></tr>` : ''}
+            ${isLiv && getDeliveryFee(delivery.zip) > 0 ? `<tr><td>Livraison</td><td align="right">${getDeliveryFee(delivery.zip).toFixed(2)}€</td></tr>` : ''}
             ${promoApplied ? `<tr><td style="color:#16a34a">🎉 Promo -10%</td><td align="right" style="color:#16a34a">-${discount.toFixed(2)}€</td></tr>` : ''}
             <tr><td><strong>Total</strong></td><td align="right"><strong>${order.total.toFixed(2)}€</strong></td></tr>
           </table>
@@ -523,9 +534,9 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
       };
     });
 
-    // Frais de livraison (gratuit pour Bougival, La Celle-Saint-Cloud, Louveciennes)
+    // Frais de livraison (gratuit pour Bougival, La Celle-Saint-Cloud, Louveciennes — 3€ pour Garches)
     const delivZip = (delivery?.zip||'').trim();
-    const delivFee = isLiv ? (FREE_DELIVERY_ZONES.has(delivZip) ? 0 : DELIVERY_FEE) : 0;
+    const delivFee = isLiv ? getDeliveryFee(delivZip) : 0;
     if (delivFee > 0) {
       line_items.push({
         price_data: {
@@ -898,7 +909,7 @@ function generateReceiptHtml(order) {
     });
   }
 
-  const delivFee = isLiv && !FREE_DELIVERY_ZONES.has((delivery.zip||'').trim()) ? 2.50 : 0;
+  const delivFee = isLiv ? getDeliveryFee(delivery.zip) : 0;
   const totalHT  = Object.values(tvaGroups).reduce((s, g) => s + g.baseHT, 0) + (delivFee / 1.10);
   const totalTVA = Object.values(tvaGroups).reduce((s, g) => s + g.montantTVA, 0) + (delivFee - delivFee / 1.10);
 

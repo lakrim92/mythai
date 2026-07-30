@@ -11,9 +11,18 @@
   })();
 
   // ── Constants ──────────────────────────────────────────
-  const DELIVERY_ZONES = new Set(['78380','78230','78430','78170','78290','78400','78160','92500','92210']);
-  const DELIVERY_FEE = 2.50;
-  const FREE_DELIVERY_ZONES = new Set(['78380','78170','78430']); // Bougival, La Celle-Saint-Cloud, Louveciennes
+  const DELIVERY_ZONES = new Set(['78380','78230','78430','78170','78290','78400','78160','92500','92210','92380']);
+  const DELIVERY_FEE         = 2.50;
+  const DELIVERY_FEE_GARCHES = 3.00;
+  const GARCHES_ZONES        = new Set(['92380']);
+  const FREE_DELIVERY_ZONES  = new Set(['78380','78170','78430']); // Bougival, La Celle-Saint-Cloud, Louveciennes
+
+  function getDeliveryFee(zip) {
+    const z = (zip || '').trim();
+    if (FREE_DELIVERY_ZONES.has(z)) return 0;
+    if (GARCHES_ZONES.has(z))       return DELIVERY_FEE_GARCHES;
+    return DELIVERY_FEE;
+  }
   const MIN_EMPORTER = 12;
   const MIN_LIVRAISON = 20;
 
@@ -209,7 +218,7 @@ const show = count > 0;
     const sub = cartTotal();
     const isLiv = mode === 'livraison';
     const zip = getVal('fZip');
-    const delivFee = isLiv ? (FREE_DELIVERY_ZONES.has(zip) ? 0 : DELIVERY_FEE) : 0;
+    const delivFee = isLiv ? getDeliveryFee(zip) : 0;
     let total = sub + delivFee;
     let promoDiscount = 0;
     if (promoEligible) { promoDiscount = Math.round(sub * 0.10 * 100) / 100; total -= promoDiscount; }
