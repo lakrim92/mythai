@@ -23,7 +23,7 @@
     if (GARCHES_ZONES.has(z))       return DELIVERY_FEE_GARCHES;
     return DELIVERY_FEE;
   }
-  const MIN_EMPORTER = 12;
+  const MIN_EMPORTER  = 12;
   const MIN_LIVRAISON = 20;
 
   const DRINKS = ['Coca-Cola Original (canette)', 'Coca-Cola Sans Sucres (canette)', 'Orangina (canette)', 'Ice Tea (canette)'];
@@ -163,7 +163,7 @@ const show = count > 0;
 
     const count = cartCount();
     const total = cartTotal();
-    const min = mode === 'livraison' ? MIN_LIVRAISON : MIN_EMPORTER;
+    const isLiv = mode === 'livraison';
 
     headCount.textContent = count === 0 ? 'Panier vide' : `${count} article${count > 1 ? 's' : ''}`;
     subtotalEl.textContent = fmt(total);
@@ -195,11 +195,12 @@ const show = count > 0;
     });
     itemsEl.innerHTML = html;
 
-    // Min info + warn
-    const modeLabel = mode === 'livraison' ? 'livraison' : 'à emporter';
-    infoEl.textContent = `Minimum ${modeLabel} : ${min} €`;
-    // Check minimum on final total (promo may bring it below threshold)
-    const effectiveTotal = promoEligible ? Math.round(total * 0.9 * 100) / 100 : total;
+    // Livraison : min 20€ après promo — À emporter : min 12€ brut
+    const effectiveTotal = isLiv
+      ? (promoEligible ? Math.round(total * 0.9 * 100) / 100 : total)
+      : total;
+    const min = isLiv ? MIN_LIVRAISON : MIN_EMPORTER;
+    infoEl.textContent = `Minimum ${isLiv ? 'livraison' : 'à emporter'} : ${min} €`;
     if (effectiveTotal < min) {
       warnEl.textContent = `Encore ${fmt(min - effectiveTotal)} pour atteindre le minimum`;
       warnEl.style.display = 'block';

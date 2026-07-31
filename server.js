@@ -502,13 +502,14 @@ app.post('/api/checkout', rlCheckout, async (req, res) => {
 
     const isLiv = delivery?.mode === 'livraison';
 
-    // Minimum commande — check on final total after promo discount
+    // Minimums : 20€ (après promo) pour livraison, 12€ (brut) pour à emporter
     const cartTotal = items.reduce((s,i) => s+parseFloat(i.price)*parseInt(i.qty||1,10), 0);
-    const minOrder = isLiv ? 20 : 12;
     const promoWillApply = applyPromo && promoEmail && isPromoEligible(promoEmail);
     const effectiveTotal = promoWillApply ? Math.round(cartTotal * 0.9 * 100) / 100 : cartTotal;
-    if (effectiveTotal < minOrder)
-      return res.status(400).json({ error: `Minimum de commande : ${minOrder}€` });
+    if (isLiv && effectiveTotal < 20)
+      return res.status(400).json({ error: 'Minimum de commande : 20€ pour la livraison' });
+    if (!isLiv && cartTotal < 12)
+      return res.status(400).json({ error: 'Minimum de commande : 12€ pour un plat à emporter' });
 
     // Validation zone livraison
     if (isLiv) {
